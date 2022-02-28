@@ -63,6 +63,14 @@ outs=(
     android/out/target/product
 )
 
+# efuse sign dir, relative to project dir
+efuses=(
+    vendor/mediatek/proprietary/scripts/sign-image_v2
+    vendor/mediatek/proprietary/scripts/sign-image_v2
+    vendor/mediatek/proprietary/scripts/sign-image_v2
+    sc13x_download_images_v2/qcm6125-la-2-0/common/sectools
+)
+
 # for pp command alias
 components=(
     android
@@ -71,6 +79,7 @@ components=(
     out
     bs2
     bs1
+    efuse
 )
 
 # pp function
@@ -128,6 +137,7 @@ function project_product() {
                 bootloaderStage1=${bootloaderStage1s[i]}
                 bootloaderStage2=${bootloaderStage2s[i]}
                 out=${outs[i]}
+                efuse=${efuses[i]}
 
                 if [ $1 == "android" ]; then
                     cd ${defaultPath}/${project}
@@ -135,12 +145,14 @@ function project_product() {
                     cd ${defaultPath}/${project}/${kernel}
                 elif [ $1 == "dts" ]; then
                     cd ${defaultPath}/${project}/${kernel}/${dts}
-                elif [ $1 == "bs2" ]; then
-                    cd ${defaultPath}/${project}/${bootloaderStage2}
                 elif [ $1 == "bs1" ]; then
                     cd ${defaultPath}/${project}/${bootloaderStage1}
+                elif [ $1 == "bs2" ]; then
+                    cd ${defaultPath}/${project}/${bootloaderStage2}
                 elif [ $1 == "out" ]; then
                     cd ${defaultPath}/${project}/${out}/${product}
+                elif [ $1 == "efuse" ]; then
+                    cd ${defaultPath}/${project}/${efuse}
                 else
                     return
                 fi 
