@@ -5,18 +5,18 @@ export defaultPath=~/zengjf/
 
 # android project
 projects=(
-    M50-project
-    A800-project
+    M0-project
+    A00-project
     M8-project
-    L1400-project
+    L00-project
 )
 
 # android product
 products=(
-    M50
-    k61v1_64_bsp_pax
-    k62v1_64_pax
-    sc138
+    M0
+    k61v1_64_bsp
+    k62v1_64
+    s138
 )
 
 # android product kernel dir name, relative to project dir
@@ -170,8 +170,7 @@ function project_product() {
 }
 
 # command alias
-alias pp="project_product"   # just for project_product function alias
-alias log="cd ~/log"         # just for log dir jump
+alias anpp="project_product"   # just for project_product function alias
 
 # component alias
 for i in "${!components[@]}"
@@ -212,7 +211,7 @@ function _project_product_completions()
     fi
 }
 
-complete -F _project_product_completions pp
+complete -F _project_product_completions anpp
 
 # project completion
 componentStrings=""
