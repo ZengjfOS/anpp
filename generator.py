@@ -46,6 +46,8 @@ print("efuses: " + str(efuses))
 ## generator file
 anpp_config_start = "##### ANPP CONFIG START #####"
 anpp_config_end = "##### ANPP CONFIG END #####"
+anpp_custom_start = "##### ANPP CUSTOM START #####"
+anpp_custom_end = "##### ANPP CUSTOM END #####"
 anpp_template_skip_line = False
 with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 	with open("androiddir.bash.template", 'r', encoding = 'utf-8') as f_in:
@@ -119,6 +121,16 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 				f_out.write("\n")
 
 			elif line.strip() == anpp_config_end:
+				anpp_template_skip_line = False
+			elif line.strip() == anpp_custom_start:
+				anpp_template_skip_line = True
+				f_out.write(line)
+
+				with open("custom.sh", 'r', encoding = 'utf-8') as f_custom:
+					for line in f_custom:
+						f_out.write(line)
+
+			elif line.strip() == anpp_custom_end:
 				anpp_template_skip_line = False
 
 			if not anpp_template_skip_line:

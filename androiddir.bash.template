@@ -74,6 +74,25 @@ efuses=(
 
 ##### ANPP CONFIG END #####
 
+##### ANPP CUSTOM START #####
+# 1. argv:
+#     ${1}: cmd
+#     ${2}: defaultPath
+#     ${3}: project
+#     ${4}: product
+#     ${5}: kernel
+#     ${6}: dts
+#     ${7}: bootloaderStage1
+#     ${8}: bootloaderStage2
+#     ${9}: out
+#     ${10}: efuse
+# 2. return:
+#     0: function run success
+function project_product_custom() {
+    return 0
+}
+##### ANPP CUSTOM END #####
+
 # for pp command alias
 components=(
     android
@@ -116,12 +135,11 @@ function project_product() {
 
                 cd ${defaultPath}/${projects[i]}
 
-                pwd
-
                 if [ $# -eq 1 ]; then
-                   return
+                    pwd
+                    return
                 else
-                   shift
+                    shift
                 fi
 
                 break
@@ -157,7 +175,12 @@ function project_product() {
                 elif [ $1 == "efuse" ]; then
                     cd ${defaultPath}/${project}/${efuse}
                 else
-                    return
+                    project_product_custom $1 ${defaultPath} ${project} ${product} ${kernel} ${dts} ${bootloaderStage1} ${bootloaderStage2} ${out} ${efuse}
+                    returnData=$?
+                    if [ ${returnData} -ne 0 ]; then
+                        echo "error: $1 returned with value: ${returnData}"
+                        return
+                    fi
                 fi 
 
                 break

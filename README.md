@@ -1,6 +1,6 @@
 # README
 
-在多个Android项目自由跳转脚本，包含自动补全，可以直接修改template获取修改json配置进行安装
+在多个Android项目自由跳转脚本，包含自动补全，可以直接修改template获取修改json配置进行安装，支持自定义命令
 
 # 目录
 
@@ -15,6 +15,7 @@
   * [4.1 自动补全使用](#41-自动补全使用)
   * [4.2 项目源代码跳转](#42-项目源代码跳转)
   * [4.3 其他跳转命令](#43-其他跳转命令)
+* [五、自定义命令](#五自定义命令)
 
 # 一、配置方法
 
@@ -51,45 +52,45 @@
 
 ## 2.1 直接安装androiddir.bash.template修改
 
-`make template`
-
-```
-cp androiddir.bash.template ~/.androiddir.sh
-check if source .androiddir.sh path in /home/pi/.bashrc:
-.androiddir.sh path not source in /home/pi/.bashrc
-tail ~/.bashrc last 2 line for terminal check
-~/.bashrc content
-...
-# add anpp(https://github.com/ZengjfOS/anpp) function to bash env
-source ~/.androiddir.sh
-```
+* `make template`
+  ```
+  cp androiddir.bash.template ~/.androiddir.sh
+  check if source .androiddir.sh path in /home/pi/.bashrc:
+  .androiddir.sh path not source in /home/pi/.bashrc
+  tail ~/.bashrc last 2 line for terminal check
+  ~/.bashrc content
+  ...
+  # add anpp(https://github.com/ZengjfOS/anpp) function to bash env
+  source ~/.androiddir.sh
+  ```
+* `source ~/.bashrc`
 
 ## 2.2 安装config.json修改
 
-以下三条命令执行的内容是一致的
-
-* `make`
-* `make json`
-* `make install`
-
-```
-python3 ./generator.py ~/.androiddir.sh
-defaultPath: ~/zengjf/
-projects: ['M0-project', 'A00-project', 'M8-project', 'L00-project']
-products: ['M0', 'k61v1_64_bsp', 'k62v1_64', 's138']
-kernels: ['kernel-4.9', 'kernel-4.9', 'kernel-4.19', 'android/kernel/msm-4.14']
-bootloaderStage1s: ['vendor/mediatek/proprietary/bootable/bootloader/preloader', 'vendor/mediatek/proprietary/bootable/bootloader/preloader', 'vendor/mediatek/proprietary/bootable/bootloader/preloader', 'android/fibo/bp_code/boot_images']
-bootloaderStage2s: ['vendor/mediatek/proprietary/bootable/bootloader/lk', 'vendor/mediatek/proprietary/bootable/bootloader/lk', 'vendor/mediatek/proprietary/bootable/bootloader/lk', 'android/bootable/bootloader/edk2']
-outs: ['out/target/product', 'out/target/product', 'out/target/product', 'android/out/target/product']
-efuses: ['vendor/mediatek/proprietary/scripts/sign-image_v2', 'vendor/mediatek/proprietary/scripts/sign-image_v2', 'vendor/mediatek/proprietary/scripts/sign-image_v2', 'sc13x_download_images_v2/qcm6125-la-2-0/common/sectools']
-check if source .androiddir.sh path in /home/pi/.bashrc:
-.androiddir.sh path not source in /home/pi/.bashrc
-tail ~/.bashrc last 2 line for terminal check
-~/.bashrc content
-...
-# add anpp(https://github.com/ZengjfOS/anpp) function to bash env
-source ~/.androiddir.sh
-```
+* 以下三条命令执行的内容是一致的
+  * `make`
+  * `make json`
+  * `make install`
+* make log
+  ```
+  python3 ./generator.py ~/.androiddir.sh
+  defaultPath: ~/zengjf/
+  projects: ['M0-project', 'A00-project', 'M8-project', 'L00-project']
+  products: ['M0', 'k61v1_64_bsp', 'k62v1_64', 's138']
+  kernels: ['kernel-4.9', 'kernel-4.9', 'kernel-4.19', 'android/kernel/msm-4.14']
+  bootloaderStage1s: ['vendor/mediatek/proprietary/bootable/bootloader/preloader', 'vendor/mediatek/proprietary/bootable/bootloader/preloader', 'vendor/mediatek/proprietary/bootable/bootloader/preloader', 'android/fibo/bp_code/boot_images']
+  bootloaderStage2s: ['vendor/mediatek/proprietary/bootable/bootloader/lk', 'vendor/mediatek/proprietary/bootable/bootloader/lk', 'vendor/mediatek/proprietary/bootable/bootloader/lk', 'android/bootable/bootloader/edk2']
+  outs: ['out/target/product', 'out/target/product', 'out/target/product', 'android/out/target/product']
+  efuses: ['vendor/mediatek/proprietary/scripts/sign-image_v2', 'vendor/mediatek/proprietary/scripts/sign-image_v2', 'vendor/mediatek/proprietary/scripts/sign-image_v2', 'sc13x_download_images_v2/qcm6125-la-2-0/common/sectools']
+  check if source .androiddir.sh path in /home/pi/.bashrc:
+  .androiddir.sh path not source in /home/pi/.bashrc
+  tail ~/.bashrc last 2 line for terminal check
+  ~/.bashrc content
+  ...
+  # add anpp(https://github.com/ZengjfOS/anpp) function to bash env
+  source ~/.androiddir.sh
+  ```
+* `source ~/.bashrc`
 
 # 三、clean
 
@@ -138,3 +139,9 @@ NO. | 命令名 | 说明
 6 | out      | 跳转到当前project的out目录
 7 | efuse    | 跳转到当前project的签名工具目录
 
+
+# 五、自定义命令
+
+* 以上的命令都是相对通用的命令，如果需要自定义其他的命令，在[custom.sh](custom.sh)中进行处理
+* `project_product_custom()`会被传入完整的项目参数，以供所有的数据处理
+* 自定义命令依赖project名字调用，例如：`m0 test`命令，调用M0-project的test自定义功能。本质是调用[custom.sh](custom.sh)中`project_product_custom()`，需要自行完成针对参数判断处理
