@@ -1,5 +1,6 @@
 #!/bin/bash
 
+##### ANPP CONFIG START #####
 # default Workspace dir, all projects are here
 export defaultPath=~/zengjf/
 
@@ -70,6 +71,8 @@ efuses=(
     vendor/mediatek/proprietary/scripts/sign-image_v2
     sc13x_download_images_v2/qcm6125-la-2-0/common/sectools
 )
+
+##### ANPP CONFIG END #####
 
 # for pp command alias
 components=(

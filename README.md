@@ -1,10 +1,26 @@
 # README
 
-在多个Android项目自由跳转脚本，包含自动补全
+在多个Android项目自由跳转脚本，包含自动补全，可以直接修改template获取修改json配置进行安装
+
+# 目录
+
+* [一、配置方法](#一配置方法)
+  * [1.1 修改androiddir.bash.template](#11-修改androiddirbashtemplate)
+  * [1.2 修改config.json](#12-修改configjson)
+* [二、install](#二install)
+  * [2.1 直接安装androiddir.bash.template修改](#21-直接安装androiddirbashtemplate修改)
+  * [2.2 安装config.json修改](#22-安装configjson修改)
+* [三、clean](#三clean)
+* [四、使用方法](#四使用方法)
+  * [4.1 自动补全使用](#41-自动补全使用)
+  * [4.2 项目源代码跳转](#42-项目源代码跳转)
+  * [4.3 其他跳转命令](#43-其他跳转命令)
 
 # 一、配置方法
 
-修改文件数组：androiddir.bash.template
+## 1.1 修改androiddir.bash.template
+
+修改文件数组：[androiddir.bash.template](androiddir.bash.template)
 
 * defaultPath：所有项目的根目录
 * projects: 项目文件夹名
@@ -17,12 +33,55 @@
 * efuses：签名工具目录
 * components：跳转命令别命（alias）
 
+## 1.2 修改config.json
+
+修改json数据：[config.json](config.json)
+
+* defaultPath：所有项目的根目录
+* project: 项目文件夹名
+* product：项目对应的产品名
+* kernel：内核相对路径，相对于projects
+* dts：dts相对路径，相对kernels
+* bootloaderStage1s：第一阶段bootloader
+* bootloaderStage2s：第二阶段bootloader
+* out：out目录，不含product名
+* efuse：签名工具目录
+
 # 二、install
 
-`make install`
+## 2.1 直接安装androiddir.bash.template修改
+
+`make template`
 
 ```
 cp androiddir.bash.template ~/.androiddir.sh
+check if source .androiddir.sh path in /home/pi/.bashrc:
+.androiddir.sh path not source in /home/pi/.bashrc
+tail ~/.bashrc last 2 line for terminal check
+~/.bashrc content
+...
+# add anpp(https://github.com/ZengjfOS/anpp) function to bash env
+source ~/.androiddir.sh
+```
+
+## 2.2 安装config.json修改
+
+以下三条命令执行的内容是一致的
+
+* `make`
+* `make json`
+* `make install`
+
+```
+python3 ./generator.py ~/.androiddir.sh
+defaultPath: ~/zengjf/
+projects: ['M0-project', 'A00-project', 'M8-project', 'L00-project']
+products: ['M0', 'k61v1_64_bsp', 'k62v1_64', 's138']
+kernels: ['kernel-4.9', 'kernel-4.9', 'kernel-4.19', 'android/kernel/msm-4.14']
+bootloaderStage1s: ['vendor/mediatek/proprietary/bootable/bootloader/preloader', 'vendor/mediatek/proprietary/bootable/bootloader/preloader', 'vendor/mediatek/proprietary/bootable/bootloader/preloader', 'android/fibo/bp_code/boot_images']
+bootloaderStage2s: ['vendor/mediatek/proprietary/bootable/bootloader/lk', 'vendor/mediatek/proprietary/bootable/bootloader/lk', 'vendor/mediatek/proprietary/bootable/bootloader/lk', 'android/bootable/bootloader/edk2']
+outs: ['out/target/product', 'out/target/product', 'out/target/product', 'android/out/target/product']
+efuses: ['vendor/mediatek/proprietary/scripts/sign-image_v2', 'vendor/mediatek/proprietary/scripts/sign-image_v2', 'vendor/mediatek/proprietary/scripts/sign-image_v2', 'sc13x_download_images_v2/qcm6125-la-2-0/common/sectools']
 check if source .androiddir.sh path in /home/pi/.bashrc:
 .androiddir.sh path not source in /home/pi/.bashrc
 tail ~/.bashrc last 2 line for terminal check
