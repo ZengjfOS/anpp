@@ -1,13 +1,24 @@
 {
-	"defaultPath": "~/zengjf/",
+	"defaultPath": "~/zengjf",
+	"project_keys": [
+		"project",
+		"product",
+		"kernel",
+		"dts",
+		"bootloaderStage1",
+		"bootloaderStage2",
+		"out",
+		"efuse",
+		"camera"
+	],
 	"projects": [
 		{
 			"project": "M0-project",
 			"product": "M0",
 			"kernel": "kernel-4.9",
 			"dts": "arch/arm64/boot/dts/mediatek/",
-			"bootloaderStage1s": "vendor/mediatek/proprietary/bootable/bootloader/preloader",
-			"bootloaderStage2s": "vendor/mediatek/proprietary/bootable/bootloader/lk",
+			"bootloaderStage1": "vendor/mediatek/proprietary/bootable/bootloader/preloader",
+			"bootloaderStage2": "vendor/mediatek/proprietary/bootable/bootloader/lk",
 			"out": "out/target/product",
 			"efuse": "vendor/mediatek/proprietary/scripts/sign-image_v2"
 		},
@@ -16,8 +27,8 @@
 			"product": "k61v1_64_bsp",
 			"kernel": "kernel-4.9",
 			"dts": "arch/arm64/boot/dts/mediatek/",
-			"bootloaderStage1s": "vendor/mediatek/proprietary/bootable/bootloader/preloader",
-			"bootloaderStage2s": "vendor/mediatek/proprietary/bootable/bootloader/lk",
+			"bootloaderStage1": "vendor/mediatek/proprietary/bootable/bootloader/preloader",
+			"bootloaderStage2": "vendor/mediatek/proprietary/bootable/bootloader/lk",
 			"out": "out/target/product",
 			"efuse": "vendor/mediatek/proprietary/scripts/sign-image_v2"
 		},
@@ -26,9 +37,10 @@
 			"product": "k62v1_64",
 			"kernel": "kernel-4.19",
 			"dts": "arch/arm64/boot/dts/mediatek/",
-			"bootloaderStage1s": "vendor/mediatek/proprietary/bootable/bootloader/preloader",
-			"bootloaderStage2s": "vendor/mediatek/proprietary/bootable/bootloader/lk",
+			"bootloaderStage1": "vendor/mediatek/proprietary/bootable/bootloader/preloader",
+			"bootloaderStage2": "vendor/mediatek/proprietary/bootable/bootloader/lk",
 			"out": "out/target/product",
+			"camera": "camera",
 			"efuse": "vendor/mediatek/proprietary/scripts/sign-image_v2"
 		},
 		{
@@ -36,10 +48,77 @@
 			"product": "s138",
 			"kernel": "android/kernel/msm-4.14",
 			"dts": "arch/arm64/boot/dts/qcom",
-			"bootloaderStage1s": "android/fibo/bp_code/boot_images",
-			"bootloaderStage2s": "android/bootable/bootloader/edk2",
+			"bootloaderStage1": "android/fibo/bp_code/boot_images",
+			"bootloaderStage2": "android/bootable/bootloader/edk2",
 			"out": "android/out/target/product",
 			"efuse": "sc13x_download_images_v2/qcm6125-la-2-0/common/sectools"
+		}
+	],
+	"components": [
+		{
+			"cmd": "android",
+			"combine":[
+				"defaultPath",
+				"project"
+			]
+		},
+		{
+			"cmd": "kernel",
+			"combine":[
+				"defaultPath",
+				"project",
+				"kernel"
+			]
+		},
+		{
+			"cmd": "dts",
+			"combine":[
+				"defaultPath",
+				"project",
+				"kernel",
+				"dts"
+			]
+		},
+		{
+			"cmd": "out",
+			"combine":[
+				"defaultPath",
+				"project",
+				"out",
+				"product"
+			]
+		},
+		{
+			"cmd": "bs1",
+			"combine":[
+				"defaultPath",
+				"project",
+				"bootloaderStage1"
+			]
+		},
+		{
+			"cmd": "bs2",
+			"combine":[
+				"defaultPath",
+				"project",
+				"bootloaderStage2"
+			]
+		},
+		{
+			"cmd": "efuse",
+			"combine":[
+				"defaultPath",
+				"project",
+				"efuse"
+			]
+		},
+		{
+			"cmd": "camera",
+			"combine":[
+				"defaultPath",
+				"project",
+				"camera"
+			]
 		}
 	]
 }

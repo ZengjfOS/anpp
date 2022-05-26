@@ -75,7 +75,7 @@ efuses=(
 ##### ANPP CONFIG END #####
 
 ##### ANPP CUSTOM START #####
-# 1. argv:
+# 1. argv: refer to config.json "project_keys" array order
 #     ${1}: cmd
 #     ${2}: defaultPath
 #     ${3}: project
@@ -93,6 +93,7 @@ function project_product_custom() {
 }
 ##### ANPP CUSTOM END #####
 
+##### ANPP COMPONENT START #####
 # for pp command alias
 components=(
     android
@@ -103,6 +104,7 @@ components=(
     bs1
     efuse
 )
+##### ANPP COMPONENT END #####
 
 # pp function
 function project_product() {
@@ -151,6 +153,7 @@ function project_product() {
         for i in "${!projects[@]}"
         do
             if [[ ${currentpath} =~ "${projects[i]}" ]]; then
+                ##### ANPP COMMAND START #####
                 project=${projects[i]}
                 product=${products[i]}
                 kernel=${kernels[i]}
@@ -182,6 +185,7 @@ function project_product() {
                         return
                     fi
                 fi 
+                ##### ANPP COMMAND END #####
 
                 break
             fi
@@ -267,4 +271,3 @@ do
     alias ${project_lowercase}="project_product ${project_lowercase}"
     complete -F _project_completions ${project_lowercase}
 done
-

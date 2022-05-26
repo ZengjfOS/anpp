@@ -1,4 +1,4 @@
-# 1. argv:
+# 1. argv: refer to config.json "project_keys" array order except ${1}
 #     ${1}: cmd
 #     ${2}: defaultPath
 #     ${3}: project

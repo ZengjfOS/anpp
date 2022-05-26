@@ -39,14 +39,18 @@
 修改json数据：[config.json](config.json)
 
 * defaultPath：所有项目的根目录
-* project: 项目文件夹名
-* product：项目对应的产品名
-* kernel：内核相对路径，相对于projects
-* dts：dts相对路径，相对kernels
-* bootloaderStage1s：第一阶段bootloader
-* bootloaderStage2s：第二阶段bootloader
-* out：out目录，不含product名
-* efuse：签名工具目录
+* project_keys：用于定义project支持哪些属性，定义了但是在project中没有赋值的会使用`.`（路径）替代
+  * project: 项目文件夹名
+  * product：项目对应的产品名
+  * kernel：内核相对路径，相对于projects
+  * dts：dts相对路径，相对kernels
+  * bootloaderStage1s：第一阶段bootloader
+  * bootloaderStage2s：第二阶段bootloader
+  * out：out目录，不含product名
+  * efuse：签名工具目录
+* components：用于合成路径，以及shell命令的alias
+  * cmd：shell命令alias
+  * combine：使用project_keys中的属性，完成cmd命令的路径组合
 
 # 二、install
 
@@ -143,5 +147,5 @@ NO. | 命令名 | 说明
 # 五、自定义命令
 
 * 以上的命令都是相对通用的命令，如果需要自定义其他的命令，在[custom.sh](custom.sh)中进行处理
-* `project_product_custom()`会被传入完整的项目参数，以供所有的数据处理
+* `project_product_custom()`会被传入完整的项目参数，以供所有的数据处理，参数顺序参考[config.json](config.json)中的`project_keys`数组顺序
 * 自定义命令依赖project名字调用，例如：`m0 test`命令，调用M0-project的test自定义功能。本质是调用[custom.sh](custom.sh)中`project_product_custom()`，需要自行完成针对参数判断处理

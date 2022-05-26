@@ -13,41 +13,40 @@ config_file = open('config.json')
 config = json.load(config_file)
 config_file.close()
 
-## get data
+# get project key-value keys and init key variable array
+project_keys = []
+for key in config["project_keys"]:
+	project_keys.append(key)
+	globals()["%ss" % (key)] = []
+
+# get data
 defaultPath = config["defaultPath"]
-projects=[]
-products=[]
-kernels=[]
-dtss=[]
-bootloaderStage1s=[]
-bootloaderStage2s=[]
-outs=[]
-efuses=[]
 for project in config["projects"]:
-	projects.append(project["project"])
-	products.append(project["product"])
-	kernels.append(project["kernel"])
-	dtss.append(project["dts"])
-	bootloaderStage1s.append(project["bootloaderStage1s"])
-	bootloaderStage2s.append(project["bootloaderStage2s"])
-	outs.append(project["out"])
-	efuses.append(project["efuse"])
+	for key in project_keys:
+		if key in project.keys():
+			globals()["%ss" % (key)].append(project[key])
+		else:
+			globals()["%ss" % (key)].append(".")
 
-## show data
+# show data
 print("defaultPath: " + defaultPath)
-print("projects: " + str(projects))
-print("products: " + str(products))
-print("kernels: " + str(kernels))
-print("bootloaderStage1s: " + str(bootloaderStage1s))
-print("bootloaderStage2s: " + str(bootloaderStage2s))
-print("outs: " + str(outs))
-print("efuses: " + str(efuses))
+for key in project_keys:
+	print(key + "s: " + str(globals()["%ss" % (key)]))
 
-## generator file
+# get component key
+component_keys = []
+for component in config["components"]:
+	component_keys.append(component["cmd"])
+
+# generator file
 anpp_config_start = "##### ANPP CONFIG START #####"
 anpp_config_end = "##### ANPP CONFIG END #####"
 anpp_custom_start = "##### ANPP CUSTOM START #####"
 anpp_custom_end = "##### ANPP CUSTOM END #####"
+anpp_component_start = "##### ANPP COMPONENT START #####"
+anpp_component_end = "##### ANPP COMPONENT END #####"
+anpp_command_start = "##### ANPP COMMAND START #####"
+anpp_command_end = "##### ANPP COMMAND END #####"
 anpp_template_skip_line = False
 with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 	with open("androiddir.bash.template", 'r', encoding = 'utf-8') as f_in:
@@ -60,65 +59,13 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 				f_out.write("export defaultPath=" + defaultPath + "\n")
 				f_out.write("\n")
 
-				f_out.write("# android project\n")
-				f_out.write("projects=(\n")
-				for project in projects:
-					f_out.write("    " + project + "\n")
-				f_out.write(")\n")
-				f_out.write("\n")
-
-				f_out.write("# android product\n")
-				f_out.write("products=(\n")
-				for product in products:
-					f_out.write("    " + product + "\n")
-				f_out.write(")\n")
-				f_out.write("\n")
-
-				f_out.write("# android product kernel dir name, relative to project dir\n")
-				f_out.write("kernels=(\n")
-				for kernel in kernels:
-					f_out.write("    " + kernel + "\n")
-				f_out.write(")\n")
-				f_out.write("\n")
-
-				f_out.write("# android product kernel dts dir name\n")
-				f_out.write("dtss=(\n")
-				for dts in dtss:
-					f_out.write("    " + dts + "\n")
-				f_out.write(")\n")
-				f_out.write("\n")
-
-				f_out.write("# android product bootloader stage 1th dir name, relative to project dir\n")
-				f_out.write("#   1. mtk: preloader\n")
-				f_out.write("#   2. qcom: xbl\n")
-				f_out.write("bootloaderStage1s=(\n")
-				for bs1 in bootloaderStage1s:
-					f_out.write("    " + bs1 + "\n")
-				f_out.write(")\n")
-				f_out.write("\n")
-
-				f_out.write("# android product bootloader stage 2th dir name, relative to project dir\n")
-				f_out.write("#   1. mtk: lk\n")
-				f_out.write("#   2. qcom: edk2\n")
-				f_out.write("bootloaderStage2s=(\n")
-				for bs2 in bootloaderStage2s:
-					f_out.write("    " + bs2 + "\n")
-				f_out.write(")\n")
-				f_out.write("\n")
-
-				f_out.write("# android product out dir, relative to project dir\n")
-				f_out.write("outs=(\n")
-				for out in outs:
-					f_out.write("    " + out + "\n")
-				f_out.write(")\n")
-				f_out.write("\n")
-
-				f_out.write("# efuse sign dir, relative to project dir\n")
-				f_out.write("efuses=(\n")
-				for efuse in efuses:
-					f_out.write("    " + efuse + "\n")
-				f_out.write(")\n")
-				f_out.write("\n")
+				for key in project_keys:
+					f_out.write("# " + key + " dir info \n")
+					f_out.write(key + "s=(\n")
+					for value_data in globals()["%ss" % (key)]:
+						f_out.write("    " + value_data + "\n")
+					f_out.write(")\n")
+					f_out.write("\n")
 
 			elif line.strip() == anpp_config_end:
 				anpp_template_skip_line = False
@@ -131,6 +78,60 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 						f_out.write(line)
 
 			elif line.strip() == anpp_custom_end:
+				anpp_template_skip_line = False
+			elif line.strip() == anpp_component_start:
+				anpp_template_skip_line = True
+				f_out.write(line)
+
+				f_out.write("# components for shell alias cmd\n")
+				f_out.write("components=(\n")
+				for key in component_keys:
+					f_out.write("    " + key+ "\n")
+				f_out.write(")\n")
+				f_out.write("\n")
+
+			elif line.strip() == anpp_component_end:
+				anpp_template_skip_line = False
+			elif line.strip() == anpp_command_start:
+				anpp_template_skip_line = True
+				f_out.write(line)
+
+				# generate shell variable
+				custom_args = "$1 ${defaultPath} "
+				for key in project_keys:
+					f_out.write("                " + key + "=${" + key + "s[i]}\n")
+					custom_args += "${" + key + "} "
+
+				# generate header for if
+				f_out.write("\n")
+				f_out.write("                if [ $1 == \"None\" ]; then\n")
+				f_out.write("                    cd .\n")
+				
+				# generate if body for cmd
+				for key in component_keys:
+					f_out.write("                elif [ $1 == \"" + key + "\" ]; then\n")
+					cmd_path = ""
+					key_index = component_keys.index(key)
+					for conbine in config["components"][key_index]["combine"]:
+						cmd_path += "${" + conbine +"}/"
+					if cmd_path.endswith("/"):
+						cmd_path = cmd_path[:-1]
+					f_out.write("                    cd " + cmd_path + "\n")
+
+				f_out.write("                else\n")
+
+				# generate else for if
+				if custom_args.endswith(" "):
+					custom_args = custom_args[:-1]
+				f_out.write("                    project_product_custom " + custom_args + "\n")
+				f_out.write("                    returnData=$?\n")
+				f_out.write("                    if [ ${returnData} -ne 0 ]; then\n")
+				f_out.write("                        echo \"error: $1 returned with value: ${returnData}\"\n")
+				f_out.write("                        return\n")
+				f_out.write("                    fi\n")
+				f_out.write("                fi \n")
+
+			elif line.strip() == anpp_command_end:
 				anpp_template_skip_line = False
 
 			if not anpp_template_skip_line:
