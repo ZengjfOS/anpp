@@ -8,10 +8,28 @@ if len(sys.argv) != 2:
 else:
 	out_file_path = sys.argv[1]
 
+# 1. How to parse json file with c-style comments?
+#   https://stackoverflow.com/questions/29959191/how-to-parse-json-file-with-c-style-comments
+def GetJsonFromFile(filePath):
+    contents = ""
+
+    fh = open(filePath, encoding="utf-8")
+    for line in fh:
+        cleanedLine = line.split("//", 1)[0]
+        if len(cleanedLine) > 0 and line.endswith("\n") and "\n" not in cleanedLine:
+            cleanedLine += "\n"
+        contents += cleanedLine
+    fh.close
+
+    while "/*" in contents:
+        preComment, postComment = contents.split("/*", 1)
+        contents = preComment + postComment.split("*/", 1)[1]
+
+    return contents
+
 # get config
-config_file = open('config.json')
-config = json.load(config_file)
-config_file.close()
+config = json.loads(GetJsonFromFile('config.json'))
+# print(json.dumps(config, indent=4))
 
 # get project key-value keys and init key variable array
 project_keys = []

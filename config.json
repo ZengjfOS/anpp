@@ -1,5 +1,12 @@
 {
+	/**
+	 * defaultPath: 默认路径，用于存放所有项目的根目录，所有的目录跳转基于该目录
+	 */
 	"defaultPath": "~/zengjf",
+	/**
+	 * project支持的key，这里相当于是定义，后面projects数组中的每个project相当于赋值，
+	 * 定义了不一定要赋值，没赋值会被'.'(目录)替换
+	 */
 	"project_keys": [
 		"project",
 		"product",
@@ -11,6 +18,9 @@
 		"efuse",
 		"camera"
 	],
+	/**
+	 * project数组，每个project可以包含project_keys数组中的字段，不一定需要完全包含 
+	 */
 	"projects": [
 		{
 			"project": "M0-project",
@@ -54,6 +64,10 @@
 			"efuse": "sc13x_download_images_v2/qcm6125-la-2-0/common/sectools"
 		}
 	],
+	/**
+	 * 每一个component用于合成一条支持的命令，cmd字段用于生成alias，combine字段用于合成alias的路径，
+	 * combine数组中的内容来自project_keys中的组合
+	 */
 	"components": [
 		{
 			"cmd": "android",
