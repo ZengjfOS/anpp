@@ -134,5 +134,15 @@
 				"camera"
 			]
 		}
+	],
+	"aliass": [
+		{
+			"cmd": "lsal",
+			"shell": "ls -al"
+		},
+		{
+			"cmd": "ls1",
+			"shell": "ls -1"
+		}
 	]
 }

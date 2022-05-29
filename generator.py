@@ -65,6 +65,8 @@ anpp_component_start = "##### ANPP COMPONENT START #####"
 anpp_component_end = "##### ANPP COMPONENT END #####"
 anpp_command_start = "##### ANPP COMMAND START #####"
 anpp_command_end = "##### ANPP COMMAND END #####"
+anpp_alias_start = "##### ANPP ALIAS START #####"
+anpp_alias_end = "##### ANPP ALIAS END #####"
 anpp_template_skip_line = False
 with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 	with open("androiddir.bash.template", 'r', encoding = 'utf-8') as f_in:
@@ -150,6 +152,18 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 				f_out.write("                fi \n")
 
 			elif line.strip() == anpp_command_end:
+				anpp_template_skip_line = False
+			elif line.strip() == anpp_alias_start:
+				anpp_template_skip_line = True
+				f_out.write(line)
+
+				f_out.write("alias anpp=\"project_product\"   # just for project_product function alias\n")
+				f_out.write("# custom shell alias cmds\n")
+				for alias in config["aliass"]:
+					alias_cmd = "alias " + alias["cmd"] + "=\"" + alias["shell"] + "\"\n"
+					f_out.write(alias_cmd)
+
+			elif line.strip() == anpp_alias_end:
 				anpp_template_skip_line = False
 
 			if not anpp_template_skip_line:

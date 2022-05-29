@@ -16,6 +16,7 @@
   * [4.2 项目源代码跳转](#42-项目源代码跳转)
   * [4.3 其他跳转命令](#43-其他跳转命令)
 * [五、自定义命令](#五自定义命令)
+* [六、自定义别名](#六自定义别名)
 
 # 一、配置方法
 
@@ -149,3 +150,7 @@ NO. | 命令名 | 说明
 * 以上的命令都是相对通用的命令，如果需要自定义其他的命令，在[custom.sh](custom.sh)中进行处理
 * `project_product_custom()`会被传入完整的项目参数，以供所有的数据处理，参数顺序参考[config.json](config.json)中的`project_keys`数组顺序
 * 自定义命令依赖project名字调用，例如：`m0 test`命令，调用M0-project的test自定义功能。本质是调用[custom.sh](custom.sh)中`project_product_custom()`，需要自行完成针对参数判断处理
+
+# 六、自定义别名
+
+[config.json](config.json)中的`aliass`字段用于自定义shell alias

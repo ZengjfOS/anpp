@@ -199,8 +199,10 @@ function project_product() {
     pwd
 }
 
+##### ANPP ALIAS START #####
 # command alias
 alias anpp="project_product"   # just for project_product function alias
+##### ANPP ALIAS END #####
 
 # component alias
 for i in "${!components[@]}"
