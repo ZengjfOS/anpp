@@ -135,7 +135,7 @@
 			]
 		}
 	],
-	"aliass": [
+	"alias": [
 		{
 			"cmd": "lsal",
 			"shell": "ls -al"

@@ -201,7 +201,8 @@ function project_product() {
 
 ##### ANPP ALIAS START #####
 # command alias
-alias anpp="project_product"   # just for project_product function alias
+alias anpp="project_product"           # just for project_product function alias
+alias anppc="project_product_custom"   # just for project_product_custom function alias
 ##### ANPP ALIAS END #####
 
 # component alias
