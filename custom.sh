@@ -19,6 +19,8 @@ function project_product_custom() {
     if [ $1 == "test" ]; then
         return 0
     elif [ $# -eq 1 ] && [ $1 == "vim" ]; then
+        touch ~/.vimrc
+
         vim_anpp_config_start=`grep "ANPP CONFIG START" ~/.vimrc`
         vim_anpp_config_end=`grep "ANPP CONFIG END" ~/.vimrc`
         if [ -z "${vim_anpp_config_start}" ] && [ -z "${vim_anpp_config_end}" ]; then
@@ -42,6 +44,8 @@ EOF
         return 0
 
     elif [ $# -eq 1 ] && [ $1 == "tmux" ]; then
+        touch ~/.tmux.conf
+
         tmux_anpp_config_start=`grep "ANPP CONFIG START" ~/.tmux.conf`
         tmux_anpp_config_end=`grep "ANPP CONFIG END" ~/.tmux.conf`
         if [ -z "${tmux_anpp_config_start}" ] && [ -z "${tmux_anpp_config_end}" ]; then
