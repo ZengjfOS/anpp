@@ -94,8 +94,22 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 				f_out.write(line)
 
 				with open("custom.sh", 'r', encoding = 'utf-8') as f_custom:
+					custom_function = False
+					index = 1
+
+					f_out.write("# 1. argv: refer to config.json \"project_keys\" array order except ${1}\n")
+					f_out.write("#     ${1}: cmd\n")
+					for key in config["project_keys"]:
+						index += 1
+						f_out.write("#     ${" + str(index) + "}: " + key + "\n")
+					f_out.write("# 2. return:\n")
+					f_out.write("#     0: function run success\n")
+
 					for line in f_custom:
-						f_out.write(line)
+						if "project_product_custom" in line:
+							custom_function = True
+						if custom_function:
+							f_out.write(line)
 
 			elif line.strip() == anpp_custom_end:
 				anpp_template_skip_line = False
