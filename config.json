@@ -16,7 +16,8 @@
 		"bootloaderStage2",
 		"out",
 		"efuse",
-		"camera"
+		"image",
+		"output"
 	],
 	/**
 	 * project数组，每个project可以包含project_keys数组中的字段，不一定需要完全包含 
@@ -50,8 +51,9 @@
 			"bootloaderStage1": "vendor/mediatek/proprietary/bootable/bootloader/preloader",
 			"bootloaderStage2": "vendor/mediatek/proprietary/bootable/bootloader/lk",
 			"out": "out/target/product",
-			"camera": "camera",
-			"efuse": "vendor/mediatek/proprietary/scripts/sign-image_v2"
+			"efuse": "vendor/mediatek/proprietary/scripts/sign-image_v2",
+			"image": "preloader.bin lk.img",
+			"output": "prebuild_images"
 		},
 		{
 			"project": "L00-project",
@@ -71,6 +73,7 @@
 	"components": [
 		{
 			"cmd": "android",
+			"type": "dir",
 			"combine":[
 				"defaultPath",
 				"project"
@@ -78,6 +81,7 @@
 		},
 		{
 			"cmd": "kernel",
+			"type": "dir",
 			"combine":[
 				"defaultPath",
 				"project",
@@ -86,6 +90,7 @@
 		},
 		{
 			"cmd": "dts",
+			"type": "dir",
 			"combine":[
 				"defaultPath",
 				"project",
@@ -95,6 +100,7 @@
 		},
 		{
 			"cmd": "out",
+			"type": "dir",
 			"combine":[
 				"defaultPath",
 				"project",
@@ -104,6 +110,7 @@
 		},
 		{
 			"cmd": "bs1",
+			"type": "dir",
 			"combine":[
 				"defaultPath",
 				"project",
@@ -112,6 +119,7 @@
 		},
 		{
 			"cmd": "bs2",
+			"type": "dir",
 			"combine":[
 				"defaultPath",
 				"project",
@@ -120,6 +128,7 @@
 		},
 		{
 			"cmd": "efuse",
+			"type": "dir",
 			"combine":[
 				"defaultPath",
 				"project",
@@ -127,22 +136,30 @@
 			]
 		},
 		{
-			"cmd": "camera",
+			"cmd": "images",
+			"type": "file",
 			"combine":[
 				"defaultPath",
 				"project",
-				"camera"
+				"out",
+				"product"
+			],
+			"file": "image",
+			"output": [
+				"defaultPath",
+				"project",
+				"output"
 			]
 		}
 	],
 	"alias": [
 		{
-			"cmd": "lsal",
-			"shell": "ls -al"
+			"cmd": "pl",
+			"shell": "bs1"
 		},
 		{
-			"cmd": "ls1",
-			"shell": "ls -1"
+			"cmd": "lk",
+			"shell": "bs2"
 		}
 	]
 }

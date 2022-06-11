@@ -83,7 +83,7 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 					f_out.write("# " + key + " dir info \n")
 					f_out.write(key + "s=(\n")
 					for value_data in globals()["%ss" % (key)]:
-						f_out.write("    " + value_data + "\n")
+						f_out.write("    '" + value_data + "'\n")
 					f_out.write(")\n")
 					f_out.write("\n")
 
@@ -136,7 +136,26 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 						cmd_path += "${" + conbine +"}/"
 					if cmd_path.endswith("/"):
 						cmd_path = cmd_path[:-1]
-					f_out.write("                    cd " + cmd_path + "\n")
+
+					cmd_type = config["components"][key_index]["type"]
+					# dir just for cd
+					if cmd_type == "dir":
+						f_out.write("                    cd " + cmd_path + "\n")
+					# file for copy
+					elif cmd_type == "file":
+						if "file" in config["components"][key_index] and len(config["components"][key_index]["file"]) > 0:
+							output_path = ""
+							for output in config["components"][key_index]["output"]:
+								output_path += "${" + output +"}/"
+							if output_path.endswith("/"):
+								output_path = output_path[:-1]
+
+							f_out.write("                    echo copy file from " + cmd_path + " to " + output_path + "\n")
+							f_out.write("                    mkdir -p " + output_path + "\n")
+							f_out.write("                    cd " + cmd_path + "\n")
+							f_out.write("                    cp -v " + "${" + config["components"][key_index]["file"] + "} " + output_path + "\n")
+							f_out.write("                    cd -\n")
+							f_out.write("                    return\n")
 
 				f_out.write("                else\n")
 
