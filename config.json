@@ -140,6 +140,10 @@
 		{
 			"cmd": "lk",
 			"shell": "bs2"
+		},
+		{
+			"cmd": "adbtools",
+			"shell": "~/.anpp/adbtools.py ~/.anpp/adbtools.json"
 		}
 	]
 }

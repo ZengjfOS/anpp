@@ -1,4 +1,5 @@
 bashrc_dir := ~/.bashrc
+anpp_dir := ~/.anpp
 androiddir_file := .androiddir.sh
 androiddir_bashrc_lines := 2
 androiddir_bashrc := $(shell grep \~/$(androiddir_file) $(bashrc_dir))
@@ -10,7 +11,7 @@ check_bashrc:
 ifeq ($(androiddir_bashrc), )
 	@echo $(androiddir_file) path not source in $(bashrc_dir)
 	@echo "# add anpp(https://github.com/ZengjfOS/anpp) function to bash env" >> $(bashrc_dir)
-	@echo "source ~/$(androiddir_file)" >> $(bashrc_dir)
+	@echo "source $(anpp_dir)/$(androiddir_file)" >> $(bashrc_dir)
 	@echo "tail $(bashrc_dir) last $(androiddir_bashrc_lines) line for terminal check"
 	@echo "$(bashrc_dir) content"
 	@echo "..."
@@ -21,16 +22,22 @@ else
 endif
 
 template: check_bashrc
-	cp androiddir.bash.template ~/$(androiddir_file)
+	mkdir -p $(anpp_dir)
+	cp androiddir.bash.template $(anpp_dir)/$(androiddir_file)
 
 generator:
-	python3 ./generator.py ~/$(androiddir_file)
+	mkdir -p $(anpp_dir)
+	python3 ./generator.py $(anpp_dir)/$(androiddir_file)
+
+	# for adbtools
+	pip3 install npyscreen
+	cp -r tools/* $(anpp_dir)/
 
 install: generator check_bashrc
 json: generator check_bashrc
 
 clean:
-	rm ~/.androiddir.sh
+	rm -rf $(anpp_dir)
 	sed -i "/$(androiddir_file)/d" $(bashrc_dir)
 	sed -i "/ZengjfOS\/anpp/d" $(bashrc_dir)
 
