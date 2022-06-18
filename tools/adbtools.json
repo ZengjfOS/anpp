@@ -1,2 +1,34 @@
 {
+    "components": [
+        {
+            "name": "ls",
+            "shell": [
+                "ls"
+            ]
+        },
+        {
+            "name": "test",
+            "shell": [
+                "test"
+            ]
+        },
+        {
+            "name": "device",
+            "shell": [
+                "adb devices"
+            ]
+        },
+        {
+            "name": "fastboot",
+            "shell": [
+                "fastboot devices"
+            ]
+        },
+        {
+            "name": "shell",
+            "shell": [
+                "adb shell"
+            ]
+        }
+    ]
 }
