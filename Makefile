@@ -29,8 +29,7 @@ generator:
 	mkdir -p $(anpp_dir)
 	python3 ./generator.py $(anpp_dir)/$(androiddir_file)
 
-	# for adbtools
-	pip3 install npyscreen
+	# for tools
 	cp -r tools/* $(anpp_dir)/
 
 install: generator check_bashrc

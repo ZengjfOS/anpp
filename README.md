@@ -155,7 +155,3 @@ NO. | 命令名 | 说明
 # 六、自定义别名
 
 [config.json](config.json)中的`alias`字段用于自定义shell alias
-
-# 七、adbtools
-
-![anpp.gif](/docs/images/anpp.gif)

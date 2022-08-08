@@ -1,4 +1,5 @@
 {
+	"version": "0.0.1",
 	/**
 	 * defaultPath: 默认路径，用于存放所有项目的根目录，所有的目录跳转基于该目录
 	 */
@@ -140,10 +141,6 @@
 		{
 			"cmd": "lk",
 			"shell": "bs2"
-		},
-		{
-			"cmd": "adbtools",
-			"shell": "~/.anpp/adbtools.py ~/.anpp/adbtools.json"
 		}
 	]
 }

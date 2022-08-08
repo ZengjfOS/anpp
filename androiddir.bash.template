@@ -163,28 +163,36 @@ function project_product() {
                 out=${outs[i]}
                 efuse=${efuses[i]}
 
-                if [ $1 == "android" ]; then
-                    cd ${defaultPath}/${project}
-                elif [ $1 == "kernel" ]; then
-                    cd ${defaultPath}/${project}/${kernel}
-                elif [ $1 == "dts" ]; then
-                    cd ${defaultPath}/${project}/${kernel}/${dts}
-                elif [ $1 == "bs1" ]; then
-                    cd ${defaultPath}/${project}/${bootloaderStage1}
-                elif [ $1 == "bs2" ]; then
-                    cd ${defaultPath}/${project}/${bootloaderStage2}
-                elif [ $1 == "out" ]; then
-                    cd ${defaultPath}/${project}/${out}/${product}
-                elif [ $1 == "efuse" ]; then
-                    cd ${defaultPath}/${project}/${efuse}
-                else
-                    project_product_custom $1 ${defaultPath} ${project} ${product} ${kernel} ${dts} ${bootloaderStage1} ${bootloaderStage2} ${out} ${efuse}
+                returnData=0
+                if [ -f "$HOME/.anpp/custom.py" ]; then
+                    python3 $HOME/.anpp/custom.py $1 ${defaultPath} ${project} ${product} ${kernel} ${dts} ${bootloaderStage1} ${bootloaderStage2} ${out} ${efuse}
                     returnData=$?
-                    if [ ${returnData} -ne 0 ]; then
-                        echo "error: $1 returned with value: ${returnData}"
-                        return
+                fi
+
+                if [ ${returnData} -ne 0 ]; then
+                    if [ $1 == "android" ]; then
+                        cd ${defaultPath}/${project}
+                    elif [ $1 == "kernel" ]; then
+                        cd ${defaultPath}/${project}/${kernel}
+                    elif [ $1 == "dts" ]; then
+                        cd ${defaultPath}/${project}/${kernel}/${dts}
+                    elif [ $1 == "bs1" ]; then
+                        cd ${defaultPath}/${project}/${bootloaderStage1}
+                    elif [ $1 == "bs2" ]; then
+                        cd ${defaultPath}/${project}/${bootloaderStage2}
+                    elif [ $1 == "out" ]; then
+                        cd ${defaultPath}/${project}/${out}/${product}
+                    elif [ $1 == "efuse" ]; then
+                        cd ${defaultPath}/${project}/${efuse}
+                    else
+                        project_product_custom $1 ${defaultPath} ${project} ${product} ${kernel} ${dts} ${bootloaderStage1} ${bootloaderStage2} ${out} ${efuse}
+                        returnData=$?
+                        if [ ${returnData} -ne 0 ]; then
+                            echo "error: $1 returned with value: ${returnData}"
+                            return
+                        fi
                     fi
-                fi 
+                fi
                 ##### ANPP COMMAND END #####
 
                 break

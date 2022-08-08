@@ -136,14 +136,25 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 					f_out.write("                " + key + "=${" + key + "s[i]}\n")
 					custom_args += "${" + key + "} "
 
+				# generate for custom python script
+				if custom_args.endswith(" "):
+					custom_args = custom_args[:-1]
+				f_out.write("\n")
+				f_out.write("                returnData=0\n")
+				f_out.write("                if [ -f \"$HOME/.anpp/custom.py\" ]; then\n")
+				f_out.write("                    python3 $HOME/.anpp/custom.py " + custom_args + "\n")
+				f_out.write("                    returnData=$?\n")
+				f_out.write("                fi\n")
+
 				# generate header for if
 				f_out.write("\n")
-				f_out.write("                if [ $1 == \"None\" ]; then\n")
-				f_out.write("                    cd .\n")
+				f_out.write("                if [ ${returnData} -ne 0 ]; then\n")
+				f_out.write("                    if [ $1 == \"None\" ]; then\n")
+				f_out.write("                        cd .\n")
 				
 				# generate if body for cmd
 				for key in component_keys:
-					f_out.write("                elif [ $1 == \"" + key + "\" ]; then\n")
+					f_out.write("                    elif [ $1 == \"" + key + "\" ]; then\n")
 					cmd_path = ""
 					key_index = component_keys.index(key)
 					for conbine in config["components"][key_index]["combine"]:
@@ -154,7 +165,7 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 					cmd_type = config["components"][key_index]["type"]
 					# dir just for cd
 					if cmd_type == "dir":
-						f_out.write("                    cd " + cmd_path + "\n")
+						f_out.write("                        cd " + cmd_path + "\n")
 					# file for copy
 					elif cmd_type == "file":
 						if "file" in config["components"][key_index] and len(config["components"][key_index]["file"]) > 0:
@@ -164,24 +175,25 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 							if output_path.endswith("/"):
 								output_path = output_path[:-1]
 
-							f_out.write("                    echo copy file from " + cmd_path + " to " + output_path + "\n")
-							f_out.write("                    mkdir -p " + output_path + "\n")
-							f_out.write("                    cd " + cmd_path + "\n")
-							f_out.write("                    cp -v " + "${" + config["components"][key_index]["file"] + "} " + output_path + "\n")
-							f_out.write("                    cd -\n")
-							f_out.write("                    return\n")
+							f_out.write("                        echo copy file from " + cmd_path + " to " + output_path + "\n")
+							f_out.write("                        mkdir -p " + output_path + "\n")
+							f_out.write("                        cd " + cmd_path + "\n")
+							f_out.write("                        cp -v " + "${" + config["components"][key_index]["file"] + "} " + output_path + "\n")
+							f_out.write("                        cd -\n")
+							f_out.write("                        return\n")
 
-				f_out.write("                else\n")
+				f_out.write("                    else\n")
 
 				# generate else for if
 				if custom_args.endswith(" "):
 					custom_args = custom_args[:-1]
-				f_out.write("                    project_product_custom " + custom_args + "\n")
-				f_out.write("                    returnData=$?\n")
-				f_out.write("                    if [ ${returnData} -ne 0 ]; then\n")
-				f_out.write("                        echo \"error: $1 returned with value: ${returnData}\"\n")
-				f_out.write("                        return\n")
-				f_out.write("                    fi\n")
+				f_out.write("                        project_product_custom " + custom_args + "\n")
+				f_out.write("                        returnData=$?\n")
+				f_out.write("                        if [ ${returnData} -ne 0 ]; then\n")
+				f_out.write("                            echo \"error: $1 returned with value: ${returnData}\"\n")
+				f_out.write("                            return\n")
+				f_out.write("                        fi\n")
+				f_out.write("                    fi \n")
 				f_out.write("                fi \n")
 
 			elif line.strip() == anpp_command_end:
