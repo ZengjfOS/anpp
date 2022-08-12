@@ -134,7 +134,7 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 				custom_args = "$1 ${defaultPath} "
 				for key in project_keys:
 					f_out.write("                " + key + "=${" + key + "s[i]}\n")
-					custom_args += "${" + key + "} "
+					custom_args += "\"${" + key + "}\" "
 
 				# generate for custom python script
 				if custom_args.endswith(" "):
