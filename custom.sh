@@ -17,6 +17,8 @@ function project_product_custom() {
     # echo "argv: $@"
 
     if [ $1 == "test" ]; then
+        source ~/.anpp/.androiddir.sh
+
         return 0
     elif [ $# -eq 1 ] && [ $1 == "vim" ]; then
         touch ~/.vimrc
