@@ -206,7 +206,7 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 				f_out.write("alias anppc=\"project_product_custom\"   # just for project_product_custom function alias")
 				f_out.write("# custom shell alias cmds\n")
 				for alias in config["alias"]:
-					alias_cmd = "alias " + alias["cmd"] + "=\"" + alias["shell"] + "\"\n"
+					alias_cmd = "alias " + alias["cmd"] + "='" + alias["shell"] + "'\n"
 					f_out.write(alias_cmd)
 
 			elif line.strip() == anpp_alias_end:
