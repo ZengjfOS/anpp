@@ -2,7 +2,7 @@ bashrc_dir := ~/.bashrc
 anpp_dir := ~/.anpp
 androiddir_file := .androiddir.sh
 androiddir_bashrc_lines := 2
-androiddir_bashrc := $(shell grep \~/$(androiddir_file) $(bashrc_dir))
+androiddir_bashrc := $(shell grep \$(anpp_dir)/$(androiddir_file) $(bashrc_dir))
 
 all: install
 
