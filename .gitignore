@@ -1,2 +1,7 @@
 androiddir.bash
 log.txt
+__pycache__
+dist
+*.egg-info
+build
+.DS_Store

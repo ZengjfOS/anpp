@@ -4,23 +4,41 @@
 
 # 目录
 
-* [一、配置方法](#一配置方法)
-  * [1.1 修改androiddir.bash.template](#11-修改androiddirbashtemplate)
-  * [1.2 修改config.json](#12-修改configjson)
-* [二、install](#二install)
-  * [2.1 直接安装androiddir.bash.template修改](#21-直接安装androiddirbashtemplate修改)
-  * [2.2 安装config.json修改](#22-安装configjson修改)
-* [三、clean](#三clean)
-* [四、使用方法](#四使用方法)
-  * [4.1 自动补全使用](#41-自动补全使用)
-  * [4.2 项目源代码跳转](#42-项目源代码跳转)
-  * [4.3 其他跳转命令](#43-其他跳转命令)
-* [五、自定义命令](#五自定义命令)
-* [六、自定义别名](#六自定义别名)
+* [一、安装及使用](#一安装及使用)
+* [二、配置方法](#二配置方法)
+  * [2.1 修改androiddir.bash.template](#21-修改androiddirbashtemplate)
+  * [2.2 修改config.json](#22-修改configjson)
+* [三、install](#三install)
+  * [3.1 直接安装androiddir.bash.template修改](#31-直接安装androiddirbashtemplate修改)
+  * [3.2 安装config.json修改](#32-安装configjson修改)
+* [四、clean](#四clean)
+* [五、使用方法](#五使用方法)
+  * [5.1 自动补全使用](#51-自动补全使用)
+  * [5.2 项目源代码跳转](#52-项目源代码跳转)
+  * [5.3 其他跳转命令](#53-其他跳转命令)
+* [六、自定义命令](#六自定义命令)
+* [七、自定义别名](#七自定义别名)
 
-# 一、配置方法
+# 一、安装及使用
 
-## 1.1 修改androiddir.bash.template
+* pip3 install anpp
+* anpp-build new
+  ```
+  .
+  ├── LICENSE
+  ├── Makefile
+  ├── androiddir.bash
+  ├── androiddir.bash.template
+  ├── config.json
+  ├── custom.sh
+  ├── generator.py
+  └── tools
+      └── custom.py
+  ```
+
+# 二、配置方法
+
+## 2.1 修改androiddir.bash.template
 
 修改文件数组：[androiddir.bash.template](androiddir.bash.template)
 
@@ -35,7 +53,7 @@
 * efuses：签名工具目录
 * components：跳转命令别命（alias）
 
-## 1.2 修改config.json
+## 2.2 修改config.json
 
 修改json数据：[config.json](config.json)
 
@@ -53,9 +71,9 @@
   * cmd：shell命令alias
   * combine：使用project_keys中的属性，完成cmd命令的路径组合
 
-# 二、install
+# 三、安装anpp shell脚本
 
-## 2.1 直接安装androiddir.bash.template修改
+## 3.1 直接安装androiddir.bash.template修改
 
 * `make template`
   ```
@@ -70,7 +88,7 @@
   ```
 * `source ~/.bashrc`
 
-## 2.2 安装config.json修改
+## 3.2 安装config.json模版
 
 * 以下三条命令执行的内容是一致的
   * `make`
@@ -97,7 +115,7 @@
   ```
 * `source ~/.bashrc`
 
-# 三、clean
+# 四、clean
 
 `make clean`
 
@@ -107,9 +125,9 @@ sed -i "/.androiddir.sh/d" ~/.bashrc
 sed -i "/ZengjfOS\/anpp/d" ~/.bashrc
 ```
 
-# 四、使用方法
+# 五、anpp使用方法
 
-## 4.1 自动补全使用
+## 5.1 自动补全使用
 
 * `anpp <tab><tab>`
   ```
@@ -127,12 +145,12 @@ sed -i "/ZengjfOS\/anpp/d" ~/.bashrc
   ```
   * list component
 
-## 4.2 项目源代码跳转
+## 5.2 项目源代码跳转
 
 * projects中的名字去除`-project`后缀，小写名字可以直接跳转到对应的目录
 * 譬如M0-project，去除名字为M0，小写为m0，所以直接在终端输入m0，可以直接调转到其源代码根目录
 
-## 4.3 其他跳转命令
+## 5.3 其他跳转命令
 
 NO. | 命令名 | 说明
 :--:|:------:|:-----
@@ -145,13 +163,13 @@ NO. | 命令名 | 说明
 7 | efuse    | 跳转到当前project的签名工具目录
 
 
-# 五、自定义命令
+# 六、自定义命令
 
 * 以上的命令都是相对通用的命令，如果需要自定义其他的命令，在[custom.sh](custom.sh)中进行处理
 * `project_product_custom()`会被传入完整的项目参数，以供所有的数据处理，参数顺序参考[config.json](config.json)中的`project_keys`数组顺序
 * 自定义命令依赖project名字调用，例如：`m0 test`命令，调用M0-project的test自定义功能。本质是调用[custom.sh](custom.sh)中`project_product_custom()`，需要自行完成针对参数判断处理
 * 支持anppc（android project product custom）直接调用project_product_custom()函数处理
 
-# 六、自定义别名
+# 七、自定义别名
 
 [config.json](config.json)中的`alias`字段用于自定义shell alias
