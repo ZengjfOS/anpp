@@ -1,0 +1,42 @@
+{
+    "version": "0.0.0",
+    "cmdSets": {
+        "root v1": [
+            "adb reboot bootloader",
+            "fastboot flashing unlock",
+            "fastboot reboot",
+            "adb root",
+            "adb disable-verity",
+            "adb reboot",
+            "adb root",
+            "adb remount"
+        ],
+        "root v2": [
+            {
+                "cmd": "adb reboot bootloader",
+                "status": 1
+            },
+            {
+                "cmd": "fastboot flashing unlock"
+            },
+            {
+                "cmd": "fastboot reboot"
+            },
+            {
+                "cmd": "adb root"
+            },
+            {
+                "cmd": "adb disable-verity"
+            },
+            {
+                "cmd": "adb reboot"
+            },
+            {
+                "cmd": "adb root"
+            },
+            {
+                "cmd": "adb remount"
+            }
+        ]
+    }
+}
