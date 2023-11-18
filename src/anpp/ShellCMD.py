@@ -1,28 +1,36 @@
 import sys
 import subprocess
 
-def Shell(cmd):
-    out = None
+class Shell:
 
-    if sys.platform.startswith('linux'):
-        out = subprocess.Popen(["bash", "-c", cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    elif sys.platform.startswith('win32'):
-        out = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    elif sys.platform.startswith('darwin'):
+    def __init__(self) -> None:
         pass
 
-    if out != None:
-        out.wait()
+    def start(self, cmd):
+        self.process = None
 
-        data = out.stdout.read()
-        if data != None:
-            return {"status": out.returncode, "output": data.decode('utf-8').strip()}
+        if sys.platform.startswith('linux'):
+            self.process = subprocess.Popen(["bash", "-c", cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        elif sys.platform.startswith('win32'):
+            self.process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+        elif sys.platform.startswith('darwin'):
+            self.process = subprocess.Popen(["zsh", "-c", cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+
+        if self.process != None:
+            self.process.wait()
+
+            data = self.process.stdout.read()
+            if data != None:
+                return {"status": self.process.returncode, "output": data.decode('utf-8').strip()}
+            else:
+                return {"status": self.process.returncode, "output": ""}
         else:
-            return {"status": out.returncode, "output": ""}
-    else:
-        return {"status": 1, "output": ""}
+            return {"status": 1, "output": ""}
+
+    def terminate(self):
+        self.process.terminate()
 
 if __name__ == "__main__" :
-    print(Shell("adb devices"))
-    print(Shell("adb root"))
-    print(Shell("adb shell cat /proc/bootprof"))
+    print(Shell().start("adb devices"))
+    print(Shell().start("adb root"))
+    print(Shell().start("adb shell cat /proc/bootprof"))

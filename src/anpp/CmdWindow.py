@@ -5,6 +5,8 @@ import curses
 import unicodedata
 import logging
 
+from anpp.ShellCMD import Shell
+
 class CmdWindow:
 
     def __init__(self, config: dict):
@@ -19,6 +21,8 @@ class CmdWindow:
         self.currentCmdSets     = self.cmdSets
         self.currentFocusCmdSet = self.currentCmdSets[list(self.currentCmdSets.keys())[0]]
         self.cmdSetsIndent      = []
+
+        self.shRet = None
 
         # keyboard code
         KEY_BOARD_ENTER = 10
@@ -179,6 +183,9 @@ class CmdWindow:
             elif ch == KEY_BOARD_ESC or ch == ord('q'):
                 index = -1
                 break
+            elif ch == ord('c'):
+                if self.shRet != None:
+                    self.shRet.terminate()
             elif ch == KEY_BOARD_UP or ch == ord('k'):
                 self.log.debug("key up")
 
@@ -253,7 +260,10 @@ class CmdWindow:
                 listTarget = None
                 if isinstance(self.currentCmdSets, list) :
                     listTarget = self.getCurrentCmdSetsList()
+
                     self.logBuffer.append(listTarget[index])
+                    self.shRet = Shell(listTarget[index])
+                    self.logBuffer.append(self.shRet["output"])
                 else:
                     key = list(self.currentCmdSets.keys())[index]
                     self.cmdSetsIndent.append(key)

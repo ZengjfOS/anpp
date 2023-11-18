@@ -11,17 +11,25 @@ def acmdsets():
     currentFolder = os.getcwd()
     templateFolder = os.path.join(folder, 'template')
 
+    DEFAULT_CONFIG_PATH = templateFolder + "/acmdsets/ACmdSets.json"
+    HOME_CONFIG_PATH = os.path.expanduser('~') + "/.anpp/ACmdSets.json"
+    CURRENT_DIR_CONFIG_PATH = currentFolder + "/ACmdSets.json"
+
     if not os.path.exists(os.path.expanduser('~') + "/.anpp"):
         os.mkdir(os.path.expanduser('~') + "/.anpp")
-        shutil.copyfile(templateFolder + "/acmdsets/ACmdSets.json", os.path.expanduser('~') + "/.anpp/ACmdSets.json")
+        shutil.copyfile(DEFAULT_CONFIG_PATH, HOME_CONFIG_PATH)
 
     if len(sys.argv) == 2:
         if sys.argv[1] == "new":
-            shutil.copyfile(templateFolder + "/acmdsets/ACmdSets.json", os.path.expanduser('~') + "/.anpp/ACmdSets.json")
+            shutil.copyfile(DEFAULT_CONFIG_PATH, HOME_CONFIG_PATH)
         elif sys.argv[1] == "config":
-            shutil.copyfile(currentFolder + "/ACmdSets.json", os.path.expanduser('~') + "/.anpp/ACmdSets.json")
+            shutil.copyfile(CURRENT_DIR_CONFIG_PATH, HOME_CONFIG_PATH)
     else:
-        configFile = open(os.path.expanduser('~') + "/.anpp/ACmdSets.json")
+        configFilePath = HOME_CONFIG_PATH
+        if os.path.exists(CURRENT_DIR_CONFIG_PATH):
+            configFilePath = CURRENT_DIR_CONFIG_PATH
+
+        configFile = open(configFilePath)
         config = json.load(configFile)
         cmdWindow = CmdWindow(config)
         
