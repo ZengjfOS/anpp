@@ -24,6 +24,7 @@ setuptools.setup(
     packages=setuptools.find_packages("src"),
     python_requires=">=3.0",
     install_requires=[
+        "windows-curses;platform_system=='Windows'"
     ],
     include_package_data=True,
     entry_points={"console_scripts": ["anpp-build=anpp:main", "acmdsets=anpp:acmdsets"]},
