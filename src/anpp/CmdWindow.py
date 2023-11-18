@@ -1,5 +1,6 @@
 import json
 import os
+import sys
 import curses
 import unicodedata
 import logging
@@ -22,14 +23,19 @@ class CmdWindow:
         # keyboard code
         KEY_BOARD_ENTER = 10
         KEY_BOARD_ESC = 27
-        KEY_BOARD_UP = 259
-        KEY_BOARD_DOWN = 258
-        KEY_BOARD_J = 106
-        KEY_BOARD_K = 107
-        KEY_BOARD_Q = 113
-        KEY_BOARD_H = 104
         KEY_BOARD_Search = 47
-        KEY_BOARD_BACKSPACE = 127
+
+        KEY_BOARD_UP    = curses.KEY_UP
+        KEY_BOARD_DOWN  = curses.KEY_DOWN
+        KEY_BOARD_LEFT  = curses.KEY_LEFT
+        KEY_BOARD_RIGHT = curses.KEY_RIGHT
+        if sys.platform.startswith('win32'):
+            KEY_BOARD_UP    = 450
+            KEY_BOARD_DOWN  = 456
+            KEY_BOARD_LEFT  = 452
+            KEY_BOARD_RIGHT = 454
+        elif sys.platform.startswith('darwin'):
+            pass
 
         # 初始化一个窗口
         mainScreen = curses.initscr()
@@ -115,6 +121,8 @@ class CmdWindow:
             # 等待按键事件
             ch = mainScreen.getch()
 
+            self.log.debug("key %d" % (ch))
+
             if ch == curses.KEY_RESIZE:
                 mainScreen.clear()
                 maxRows, maxCols = mainScreen.getmaxyx()
@@ -171,7 +179,7 @@ class CmdWindow:
             elif ch == KEY_BOARD_ESC or ch == ord('q'):
                 index = -1
                 break
-            elif ch == curses.KEY_UP or ch == ord('k'):
+            elif ch == KEY_BOARD_UP or ch == ord('k'):
                 self.log.debug("key up")
 
                 index -= 1
@@ -193,7 +201,7 @@ class CmdWindow:
 
                 selectScreen.refresh()
                 infoScreen.refresh()
-            elif ch == curses.KEY_DOWN or ch == ord('j'):
+            elif ch == KEY_BOARD_DOWN or ch == ord('j'):
                 self.log.debug("key down")
 
                 index += 1
@@ -216,7 +224,7 @@ class CmdWindow:
 
                 selectScreen.refresh()
                 infoScreen.refresh()
-            elif ch == curses.KEY_LEFT or ch == ord('h'):
+            elif ch == KEY_BOARD_LEFT or ch == ord('h'):
                 self.log.debug(self.cmdSetsIndent)
                 if len(self.cmdSetsIndent) == 0:
                     continue
@@ -240,7 +248,7 @@ class CmdWindow:
 
                 selectScreen.refresh()
                 infoScreen.refresh()
-            elif ch == KEY_BOARD_ENTER or ch == curses.KEY_RIGHT or ch == ord('l'):
+            elif ch == KEY_BOARD_ENTER or ch == KEY_BOARD_RIGHT or ch == ord('l'):
                 self.log.debug("enter")
                 listTarget = None
                 if isinstance(self.currentCmdSets, list) :
