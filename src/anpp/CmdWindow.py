@@ -4,6 +4,8 @@ import sys
 import curses
 import unicodedata
 import logging
+import _thread
+import time
 
 from anpp.ShellCMD import Shell
 
@@ -22,7 +24,9 @@ class CmdWindow:
         self.currentFocusCmdSet = self.currentCmdSets[list(self.currentCmdSets.keys())[0]]
         self.cmdSetsIndent      = []
 
-        self.shRet = None
+        self.shCmd = None
+        self.needFresh = True
+        self.shell = Shell()
 
         # keyboard code
         KEY_BOARD_ENTER = 10
@@ -42,16 +46,16 @@ class CmdWindow:
             pass
 
         # 初始化一个窗口
-        mainScreen = curses.initscr()
+        self.mainScreen = curses.initscr()
         # 绘制边框
-        # mainScreen.border(0)
+        # self.mainScreen.border(0)
         # 使用curses通常要关闭屏幕回显，目的是读取字符仅在适当的环境下输出
         curses.noecho()
         # 应用程序一般是立即响应的，即不需要按回车就立即回应的，这种模式叫cbreak模式，相反的常用的模式是缓冲输入模式
         curses.cbreak()
         # 终端经常返回特殊键作为一个多字节的转义序列，比如光标键，或者导航键比如Page UP和Home键。
         # curses可以针对这些序列做一次处理，比如curses.KEY_LEFT返回一个特殊的值。要完成这些工作，必须开启键盘模式。
-        mainScreen.keypad(1)
+        self.mainScreen.keypad(1)
         # 不显示光标
         curses.curs_set(0) 
 
@@ -85,7 +89,7 @@ class CmdWindow:
 
         # Define windows to be used for bar charts
         # curses.newwin(height, width, begin_y, begin_x)
-        selectScreen = curses.newwin(
+        self.selectScreen = curses.newwin(
                 ((maxRows - 3) // 3 * 2),                       # 上下边框 + 内容
                 maxCols,                                        # 左右边框 + 左右空列
                 0,                                              # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
@@ -94,7 +98,7 @@ class CmdWindow:
 
         # Define windows to be used for bar charts
         # curses.newwin(height, width, begin_y, begin_x)
-        infoScreen = curses.newwin(
+        self.infoScreen = curses.newwin(
                 ((maxRows - 3) - ((maxRows - 3) // 3 * 2)),     # 上下边框 + 内容
                 maxCols,                                        # 左右边框 + 左右空列
                 ((maxRows - 3) // 3 * 2),                       # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
@@ -103,33 +107,35 @@ class CmdWindow:
 
         # Define windows to be used for bar charts
         # curses.newwin(height, width, begin_y, begin_x)
-        statusScreen = curses.newwin(
+        self.statusScreen = curses.newwin(
                 3,                                              # 上下边框 + 内容
                 maxCols,                                        # 左右边框 + 左右空列
                 maxRows - 3,                                    # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
                 0                                               # 主屏左边框 + 左空列
             )
 
-        selectScreen.border(0)
-        infoScreen.border(0)
-        statusScreen.border(0)
+        self.selectScreen.border(0)
+        self.infoScreen.border(0)
+        self.statusScreen.border(0)
 
-        self.drawList(selectScreen, list(self.currentCmdSets.keys()), topIndex, index)
+        self.drawList(self.selectScreen, list(self.currentCmdSets.keys()), topIndex, index)
 
-        mainScreen.refresh()
-        selectScreen.refresh()
-        infoScreen.refresh()
-        statusScreen.refresh()
+        self.mainScreen.refresh()
+        self.selectScreen.refresh()
+        self.infoScreen.refresh()
+        self.statusScreen.refresh()
+
+        _thread.start_new_thread(self.infoRefresh, ("info refresh",))
 
         while True:
             # 等待按键事件
-            ch = mainScreen.getch()
+            ch = self.mainScreen.getch()
 
             self.log.debug("key %d" % (ch))
 
             if ch == curses.KEY_RESIZE:
-                mainScreen.clear()
-                maxRows, maxCols = mainScreen.getmaxyx()
+                self.mainScreen.clear()
+                maxRows, maxCols = self.mainScreen.getmaxyx()
 
                 if (maxRows < MIN_ROWS or maxCols < MIN_COLS):
                     curses.endwin()
@@ -139,7 +145,7 @@ class CmdWindow:
                 
                 # Define windows to be used for bar charts
                 # curses.newwin(height, width, begin_y, begin_x)
-                selectScreen = curses.newwin(
+                self.selectScreen = curses.newwin(
                         ((maxRows - 3) // 3 * 2),                       # 上下边框 + 内容
                         maxCols,                                        # 左右边框 + 左右空列
                         0,                                              # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
@@ -148,7 +154,7 @@ class CmdWindow:
 
                 # Define windows to be used for bar charts
                 # curses.newwin(height, width, begin_y, begin_x)
-                infoScreen = curses.newwin(
+                self.infoScreen = curses.newwin(
                         ((maxRows - 3) - ((maxRows - 3) // 3 * 2)),     # 上下边框 + 内容
                         maxCols,                                        # 左右边框 + 左右空列
                         ((maxRows - 3) // 3 * 2),                       # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
@@ -157,23 +163,23 @@ class CmdWindow:
 
                 # Define windows to be used for bar charts
                 # curses.newwin(height, width, begin_y, begin_x)
-                statusScreen = curses.newwin(
+                self.statusScreen = curses.newwin(
                         3,                                              # 上下边框 + 内容
                         maxCols,                                        # 左右边框 + 左右空列
                         maxRows - 3,                                    # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
                         0                                               # 主屏左边框 + 左空列
                     )
 
-                selectScreen.border(0)
-                infoScreen.border(0)
-                statusScreen.border(0)
+                self.selectScreen.border(0)
+                self.infoScreen.border(0)
+                self.statusScreen.border(0)
 
-                self.drawList(selectScreen, list(self.currentCmdSets.keys()), topIndex, index)
+                self.drawList(self.selectScreen, list(self.currentCmdSets.keys()), topIndex, index)
 
-                mainScreen.refresh()
-                selectScreen.refresh()
-                infoScreen.refresh()
-                statusScreen.refresh()
+                self.mainScreen.refresh()
+                self.selectScreen.refresh()
+                self.infoScreen.refresh()
+                self.statusScreen.refresh()
 
                 inputString = ""
 
@@ -184,8 +190,10 @@ class CmdWindow:
                 index = -1
                 break
             elif ch == ord('c'):
-                if self.shRet != None:
-                    self.shRet.terminate()
+                if self.shell != None:
+                    self.shell.terminate()
+
+                continue
             elif ch == KEY_BOARD_UP or ch == ord('k'):
                 self.log.debug("key up")
 
@@ -197,17 +205,12 @@ class CmdWindow:
                 if topIndex == (index + 1):
                     topIndex -= 1
 
-                selectScreen.clear()
-                infoScreen.clear()
+                self.selectScreen.clear()
+                self.selectScreen.border(0)
 
-                selectScreen.border(0)
-                infoScreen.border(0)
+                self.drawList(self.selectScreen, self.getCurrentCmdSetsList(), topIndex, index)
 
-                self.drawList(selectScreen, self.getCurrentCmdSetsList(), topIndex, index)
-                self.drawInfo(infoScreen)
-
-                selectScreen.refresh()
-                infoScreen.refresh()
+                self.selectScreen.refresh()
             elif ch == KEY_BOARD_DOWN or ch == ord('j'):
                 self.log.debug("key down")
 
@@ -220,17 +223,12 @@ class CmdWindow:
                     if (topIndex + (maxRows - 2)) == index :
                         topIndex += 1
 
-                selectScreen.clear()
-                infoScreen.clear()
+                self.selectScreen.clear()
+                self.selectScreen.border(0)
 
-                selectScreen.border(0)
-                infoScreen.border(0)
+                self.drawList(self.selectScreen, self.getCurrentCmdSetsList(), topIndex, index)
 
-                self.drawList(selectScreen, self.getCurrentCmdSetsList(), topIndex, index)
-                self.drawInfo(infoScreen)
-
-                selectScreen.refresh()
-                infoScreen.refresh()
+                self.selectScreen.refresh()
             elif ch == KEY_BOARD_LEFT or ch == ord('h'):
                 self.log.debug(self.cmdSetsIndent)
                 if len(self.cmdSetsIndent) == 0:
@@ -244,26 +242,21 @@ class CmdWindow:
                 topIndex = 0
                 index = 0
 
-                selectScreen.clear()
-                infoScreen.clear()
+                self.selectScreen.clear()
+                self.selectScreen.border(0)
 
-                selectScreen.border(0)
-                infoScreen.border(0)
+                self.drawList(self.selectScreen, self.getCurrentCmdSetsList(), topIndex, index)
 
-                self.drawList(selectScreen, self.getCurrentCmdSetsList(), topIndex, index)
-                self.drawInfo(infoScreen)
-
-                selectScreen.refresh()
-                infoScreen.refresh()
+                self.selectScreen.refresh()
             elif ch == KEY_BOARD_ENTER or ch == KEY_BOARD_RIGHT or ch == ord('l'):
                 self.log.debug("enter")
                 listTarget = None
                 if isinstance(self.currentCmdSets, list) :
                     listTarget = self.getCurrentCmdSetsList()
 
-                    self.logBuffer.append(listTarget[index])
-                    self.shRet = Shell(listTarget[index])
-                    self.logBuffer.append(self.shRet["output"])
+                    if self.shCmd == None:
+                        self.shCmd = listTarget[index]
+                        self.logBuffer.append(self.shCmd)
                 else:
                     key = list(self.currentCmdSets.keys())[index]
                     self.cmdSetsIndent.append(key)
@@ -274,17 +267,12 @@ class CmdWindow:
                     topIndex = 0
                     index = 0
 
-                selectScreen.clear()
-                infoScreen.clear()
+                self.selectScreen.clear()
+                self.selectScreen.border(0)
 
-                selectScreen.border(0)
-                infoScreen.border(0)
+                self.drawList(self.selectScreen, listTarget, topIndex, index)
 
-                self.drawList(selectScreen, listTarget, topIndex, index)
-                self.drawInfo(infoScreen)
-
-                selectScreen.refresh()
-                infoScreen.refresh()
+                self.selectScreen.refresh()
             elif ch == KEY_BOARD_Search:
                 # /字符表示进入检索，参考vim
                 inputString += "/"
@@ -299,6 +287,25 @@ class CmdWindow:
         # 退出curses环境
         curses.endwin()
     
+    def infoRefresh(self, name):
+        self.log.debug(name)
+
+        while True:
+
+            if self.needFresh:
+                self.infoScreen.clear()
+                self.infoScreen.border(0)
+                self.drawInfo(self.infoScreen)
+                self.infoScreen.refresh()
+
+            if self.shCmd != None:
+                ret = self.shell.start(self.shCmd)
+                self.logBuffer.append(ret["output"])
+
+                self.shCmd = None
+
+            time.sleep(0.1)
+
     def getCurrentCmdSetsList(self):
         if isinstance(self.currentCmdSets, list):
             if isinstance(self.currentCmdSets[0], str):

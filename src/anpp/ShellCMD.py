@@ -20,15 +20,17 @@ class Shell:
             self.process.wait()
 
             data = self.process.stdout.read()
-            if data != None:
-                return {"status": self.process.returncode, "output": data.decode('utf-8').strip()}
-            else:
-                return {"status": self.process.returncode, "output": ""}
+            retCode = self.process.returncode
+
+            self.process = None
+
+            return {"status": retCode, "output": data.decode('utf-8').strip()}
         else:
             return {"status": 1, "output": ""}
 
     def terminate(self):
-        self.process.terminate()
+        if self.process != None:
+            self.process.terminate()
 
 if __name__ == "__main__" :
     print(Shell().start("adb devices"))
