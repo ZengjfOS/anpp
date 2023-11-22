@@ -6,6 +6,7 @@ import unicodedata
 import logging
 import _thread
 import time
+from queue import Queue
 
 from anpp.ShellCMD import Shell
 
@@ -26,7 +27,8 @@ class CmdWindow:
 
         self.shCmd = None
         self.needFresh = True
-        self.shell = Shell(self.logBuffer)
+        self.queue = Queue()
+        self.shell = Shell(self.queue)
 
         # keyboard code
         KEY_BOARD_ENTER = 10
@@ -68,11 +70,11 @@ class CmdWindow:
         FG_GREEN_COLOR = 2
 
         # 获取当前行列信息
-        maxRows = curses.LINES
-        maxCols = curses.COLS
+        self.maxRows = curses.LINES
+        self.maxCols = curses.COLS
         MIN_ROWS = 24
         MIN_COLS = 80
-        if (maxRows < MIN_ROWS or maxCols < MIN_COLS):
+        if (self.maxRows < MIN_ROWS or self.maxCols < MIN_COLS):
             curses.endwin()
             print("terminal rows must more than " + str(MIN_ROWS))
             print("terminal cols must more than " + str(MIN_COLS))
@@ -90,27 +92,27 @@ class CmdWindow:
         # Define windows to be used for bar charts
         # curses.newwin(height, width, begin_y, begin_x)
         self.selectScreen = curses.newwin(
-                ((maxRows - 3) // 3 * 2),                       # 上下边框 + 内容
-                maxCols,                                        # 左右边框 + 左右空列
-                0,                                              # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
-                0                                               # 主屏左边框 + 左空列
+                ((self.maxRows - 3) // 3 * 2),                      # 上下边框 + 内容
+                self.maxCols,                                       # 左右边框 + 左右空列
+                0,                                                  # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
+                0                                                   # 主屏左边框 + 左空列
             )
 
         # Define windows to be used for bar charts
         # curses.newwin(height, width, begin_y, begin_x)
         self.infoScreen = curses.newwin(
-                ((maxRows - 3) - ((maxRows - 3) // 3 * 2)),     # 上下边框 + 内容
-                maxCols,                                        # 左右边框 + 左右空列
-                ((maxRows - 3) // 3 * 2),                       # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
-                0                                               # 主屏左边框 + 左空列
+                ((self.maxRows - 3) - ((self.maxRows - 3) // 3 * 2)),   # 上下边框 + 内容
+                self.maxCols,                                           # 左右边框 + 左右空列
+                ((self.maxRows - 3) // 3 * 2),                          # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
+                0                                                       # 主屏左边框 + 左空列
             )
 
         # Define windows to be used for bar charts
         # curses.newwin(height, width, begin_y, begin_x)
         self.statusScreen = curses.newwin(
                 3,                                              # 上下边框 + 内容
-                maxCols,                                        # 左右边框 + 左右空列
-                maxRows - 3,                                    # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
+                self.maxCols,                                   # 左右边框 + 左右空列
+                self.maxRows - 3,                               # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
                 0                                               # 主屏左边框 + 左空列
             )
 
@@ -136,9 +138,9 @@ class CmdWindow:
 
             if ch == curses.KEY_RESIZE:
                 self.mainScreen.clear()
-                maxRows, maxCols = self.mainScreen.getmaxyx()
+                self.maxRows, self.maxCols = self.mainScreen.getmaxyx()
 
-                if (maxRows < MIN_ROWS or maxCols < MIN_COLS):
+                if (self.maxRows < MIN_ROWS or self.maxCols < MIN_COLS):
                     curses.endwin()
                     print("terminal rows must more than " + str(MIN_ROWS))
                     print("terminal cols must more than " + str(MIN_COLS))
@@ -147,27 +149,27 @@ class CmdWindow:
                 # Define windows to be used for bar charts
                 # curses.newwin(height, width, begin_y, begin_x)
                 self.selectScreen = curses.newwin(
-                        ((maxRows - 3) // 3 * 2),                       # 上下边框 + 内容
-                        maxCols,                                        # 左右边框 + 左右空列
-                        0,                                              # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
-                        0                                               # 主屏左边框 + 左空列
+                        ((self.maxRows - 3) // 3 * 2),                      # 上下边框 + 内容
+                        self.maxCols,                                       # 左右边框 + 左右空列
+                        0,                                                  # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
+                        0                                                   # 主屏左边框 + 左空列
                     )
 
                 # Define windows to be used for bar charts
                 # curses.newwin(height, width, begin_y, begin_x)
                 self.infoScreen = curses.newwin(
-                        ((maxRows - 3) - ((maxRows - 3) // 3 * 2)),     # 上下边框 + 内容
-                        maxCols,                                        # 左右边框 + 左右空列
-                        ((maxRows - 3) // 3 * 2),                       # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
-                        0                                               # 主屏左边框 + 左空列
+                        ((self.maxRows - 3) - ((self.maxRows - 3) // 3 * 2)),       # 上下边框 + 内容
+                        self.maxCols,                                               # 左右边框 + 左右空列
+                        ((self.maxRows - 3) // 3 * 2),                              # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
+                        0                                                           # 主屏左边框 + 左空列
                     )
 
                 # Define windows to be used for bar charts
                 # curses.newwin(height, width, begin_y, begin_x)
                 self.statusScreen = curses.newwin(
                         3,                                              # 上下边框 + 内容
-                        maxCols,                                        # 左右边框 + 左右空列
-                        maxRows - 3,                                    # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
+                        self.maxCols,                                   # 左右边框 + 左右空列
+                        self.maxRows - 3,                               # 主屏上下边框 + 帮助屏上下边框 + 取整补充1
                         0                                               # 主屏左边框 + 左空列
                     )
 
@@ -221,7 +223,7 @@ class CmdWindow:
                 else:
                     # 处理下边缘
                     # 上下两个边框占用2行
-                    if (topIndex + (maxRows - 2)) == index :
+                    if (topIndex + (self.maxRows - 2)) == index :
                         topIndex += 1
 
                 self.selectScreen.clear()
@@ -258,6 +260,9 @@ class CmdWindow:
                     if self.shCmd == None:
                         self.shCmd = listTarget[index]
                         self.logBuffer.append(self.shCmd)
+                    else:
+                        self.logBuffer.append(self.shCmd + "is running")
+
                 else:
                     key = list(self.currentCmdSets.keys())[index]
                     self.cmdSetsIndent.append(key)
@@ -274,6 +279,8 @@ class CmdWindow:
                 self.drawList(self.selectScreen, listTarget, topIndex, index)
 
                 self.selectScreen.refresh()
+
+                self.needFresh = True
             elif ch == KEY_BOARD_Search:
                 # /字符表示进入检索，参考vim
                 inputString += "/"
@@ -293,11 +300,16 @@ class CmdWindow:
 
         while True:
 
-            if self.needFresh:
+            if self.needFresh or (not self.queue.empty()):
+                if self.queue.qsize() > 0:
+                    self.logBuffer.append(self.queue.get())
+
                 self.infoScreen.clear()
                 self.infoScreen.border(0)
                 self.drawInfo(self.infoScreen)
                 self.infoScreen.refresh()
+
+                self.needFresh = False
 
             time.sleep(0.1)
 
@@ -312,6 +324,7 @@ class CmdWindow:
                 # self.logBuffer.append(ret["output"])
 
                 self.shCmd = None
+                self.needFresh = True
 
             time.sleep(0.1)
 
@@ -341,7 +354,7 @@ class CmdWindow:
 
     def drawList(self, window: curses.window, listData, topIndex, index):
         row  = 1
-        maxRows, maxCols = window.getmaxyx()
+        self.maxRows, self.maxCols = window.getmaxyx()
         listDataMaxLen = 0
 
         for item in listData:
@@ -349,40 +362,40 @@ class CmdWindow:
                 listDataMaxLen = len(item)
 
         # 上下两个边框占用2行
-        if (maxRows - 2) > len(listData):
+        if (self.maxRows - 2) > len(listData):
             for item in listData:
                 # 行从1开始绘图，index是从0开始算的
                 if ((row - 1) == index):
-                    window.addstr(row, maxCols // 2 - listDataMaxLen // 2, item, curses.color_pair(curses.COLOR_GREEN))
+                    window.addstr(row, self.maxCols // 2 - listDataMaxLen // 2, item, curses.color_pair(curses.COLOR_GREEN))
                 else:
-                    window.addstr(row, maxCols // 2 - listDataMaxLen // 2, item)
+                    window.addstr(row, self.maxCols // 2 - listDataMaxLen // 2, item)
 
                 row += 1
         else:
             # 上下两个边框占用2行
-            for item in listData[topIndex:topIndex + (maxRows - 2)]:
+            for item in listData[topIndex:topIndex + (self.maxRows - 2)]:
                 # 行从1开始绘图，index是从0开始算的
                 if (row - 1) == (index - topIndex):
-                    window.addstr(row, maxCols // 2 - listDataMaxLen // 2, item, curses.color_pair(curses.COLOR_GREEN))
+                    window.addstr(row, self.maxCols // 2 - listDataMaxLen // 2, item, curses.color_pair(curses.COLOR_GREEN))
                 else:
-                    window.addstr(row, maxCols // 2 - listDataMaxLen // 2, item)
+                    window.addstr(row, self.maxCols // 2 - listDataMaxLen // 2, item)
 
                 row += 1
 
     def drawInfo(self, window: curses.window):
-        maxRows, maxCols = window.getmaxyx()
+        self.maxRows, self.maxCols = window.getmaxyx()
 
-        for row in range(maxRows - 2):
+        for row in range(self.maxRows - 2):
             if len(self.logBuffer) == 0:
                 break
 
             if row >= len(self.logBuffer):
                 break
 
-            if (maxRows - 2) > len(self.logBuffer):
+            if (self.maxRows - 2) > len(self.logBuffer):
                 window.addstr(row + 1, 1, self.logBuffer[row])
             else:
-                offset = len(self.logBuffer) - (maxRows - 2) + row
+                offset = len(self.logBuffer) - (self.maxRows - 2) + row
                 window.addstr(row + 1, 1, self.logBuffer[offset])
 
 if __name__ == "__main__" :

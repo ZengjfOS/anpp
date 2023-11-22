@@ -1,9 +1,10 @@
 import sys
 import subprocess
+from queue import Queue
 
 class Shell:
 
-    def __init__(self, log: list) -> None:
+    def __init__(self, log: Queue ) -> None:
         self.log = log
         self.currentCmdLog = []
 
@@ -26,8 +27,8 @@ class Shell:
 
                 if line:
                     # print(line.decode('utf-8'))
-                    self.log.append(line.decode('utf-8'))
-                    self.currentCmdLog.append(line.decode('utf-8'))
+                    self.log.put(line.decode('utf-8').rstrip())
+                    self.currentCmdLog.append(line.decode('utf-8').rstrip())
 
             retCode = self.process.returncode
             self.process = None
