@@ -3,11 +3,13 @@ import subprocess
 
 class Shell:
 
-    def __init__(self) -> None:
-        pass
+    def __init__(self, log: list) -> None:
+        self.log = log
+        self.currentCmdLog = []
 
     def start(self, cmd):
         self.process = None
+        self.currentCmdLog = []
 
         if sys.platform.startswith('linux'):
             self.process = subprocess.Popen(["bash", "-c", cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
@@ -17,14 +19,20 @@ class Shell:
             self.process = subprocess.Popen(["zsh", "-c", cmd], stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
         if self.process != None:
-            self.process.wait()
+            while True:
+                line = self.process.stdout.readline()
+                if line.decode('utf-8') == '' and self.process.poll() is not None:
+                    break
 
-            data = self.process.stdout.read()
+                if line:
+                    # print(line.decode('utf-8'))
+                    self.log.append(line.decode('utf-8'))
+                    self.currentCmdLog.append(line.decode('utf-8'))
+
             retCode = self.process.returncode
-
             self.process = None
 
-            return {"status": retCode, "output": data.decode('utf-8').strip()}
+            return {"status": retCode, "output": "".join(self.currentCmdLog)}
         else:
             return {"status": 1, "output": ""}
 

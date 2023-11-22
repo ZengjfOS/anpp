@@ -26,7 +26,7 @@ class CmdWindow:
 
         self.shCmd = None
         self.needFresh = True
-        self.shell = Shell()
+        self.shell = Shell(self.logBuffer)
 
         # keyboard code
         KEY_BOARD_ENTER = 10
@@ -126,6 +126,7 @@ class CmdWindow:
         self.statusScreen.refresh()
 
         _thread.start_new_thread(self.infoRefresh, ("info refresh",))
+        _thread.start_new_thread(self.runShellCmd, ("shell cmd",))
 
         while True:
             # 等待按键事件
@@ -298,9 +299,17 @@ class CmdWindow:
                 self.drawInfo(self.infoScreen)
                 self.infoScreen.refresh()
 
+            time.sleep(0.1)
+
+    def runShellCmd(self, name):
+        self.log.debug(name)
+
+        while True:
+
             if self.shCmd != None:
                 ret = self.shell.start(self.shCmd)
-                self.logBuffer.append(ret["output"])
+                self.log.debug(ret)
+                # self.logBuffer.append(ret["output"])
 
                 self.shCmd = None
 
