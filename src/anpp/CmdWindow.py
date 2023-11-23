@@ -26,7 +26,9 @@ class CmdWindow:
         self.cmdSetsIndent      = []
 
         self.shCmd = None
-        self.needFresh = True
+        self.shCmdStatus = None
+        self.needFreshInfo = True
+        self.needFreshStatus = True
         self.queue = Queue()
         self.shell = Shell(self.queue)
 
@@ -177,7 +179,7 @@ class CmdWindow:
                 self.infoScreen.border(0)
                 self.statusScreen.border(0)
 
-                self.drawList(self.selectScreen, list(self.currentCmdSets.keys()), topIndex, index)
+                self.drawList(self.selectScreen, list(self.getCurrentCmdSetsList()), topIndex, index)
 
                 self.mainScreen.refresh()
                 self.selectScreen.refresh()
@@ -259,6 +261,8 @@ class CmdWindow:
 
                     if self.shCmd == None:
                         self.shCmd = listTarget[index]
+                        self.shCmdStatus = "prepare"
+
                         self.logBuffer.append(self.shCmd)
                     else:
                         self.logBuffer.append(self.shCmd + "is running")
@@ -280,7 +284,8 @@ class CmdWindow:
 
                 self.selectScreen.refresh()
 
-                self.needFresh = True
+                self.needFreshInfo = True
+                self.needFreshStatus = True
             elif ch == KEY_BOARD_Search:
                 # /字符表示进入检索，参考vim
                 inputString += "/"
@@ -300,7 +305,7 @@ class CmdWindow:
 
         while True:
 
-            if self.needFresh or (not self.queue.empty()):
+            if self.needFreshInfo or (not self.queue.empty()):
                 if self.queue.qsize() > 0:
                     self.logBuffer.append(self.queue.get())
 
@@ -309,7 +314,15 @@ class CmdWindow:
                 self.drawInfo(self.infoScreen)
                 self.infoScreen.refresh()
 
-                self.needFresh = False
+                self.needFreshInfo = False
+
+            if self.needFreshStatus:
+                self.statusScreen.clear()
+                self.statusScreen.border(0)
+                self.drawStatus(self.statusScreen)
+                self.statusScreen.refresh()
+
+                self.needFreshStatus = False
 
             time.sleep(0.1)
 
@@ -319,12 +332,17 @@ class CmdWindow:
         while True:
 
             if self.shCmd != None:
+                self.shCmdStatus = "running"
+                self.needFreshStatus = True
+
                 ret = self.shell.start(self.shCmd)
                 self.log.debug(ret)
                 # self.logBuffer.append(ret["output"])
 
+                self.shCmdStatus = "stop"
                 self.shCmd = None
-                self.needFresh = True
+                self.needFreshInfo = True
+                self.needFreshStatus = True
 
             time.sleep(0.1)
 
@@ -383,20 +401,28 @@ class CmdWindow:
                 row += 1
 
     def drawInfo(self, window: curses.window):
-        self.maxRows, self.maxCols = window.getmaxyx()
+        maxRows, maxCols = window.getmaxyx()
 
-        for row in range(self.maxRows - 2):
+        for row in range(maxRows - 2):
             if len(self.logBuffer) == 0:
                 break
 
             if row >= len(self.logBuffer):
                 break
 
-            if (self.maxRows - 2) > len(self.logBuffer):
+            if (maxRows - 2) > len(self.logBuffer):
                 window.addstr(row + 1, 1, self.logBuffer[row])
             else:
-                offset = len(self.logBuffer) - (self.maxRows - 2) + row
+                offset = len(self.logBuffer) - (maxRows - 2) + row
                 window.addstr(row + 1, 1, self.logBuffer[offset])
+
+    def drawStatus(self, window: curses.window):
+        if self.shCmd == None:
+            statusString = " " * (self.maxCols - 2)
+            window.addstr(1, 1, statusString)
+        else:
+            statusString = (self.shCmd + " is " + self.shCmdStatus)[0:(self.maxCols - 2)]
+            window.addstr(1, 1, statusString)
 
 if __name__ == "__main__" :
     configFile = open(os.path.expanduser('~') + "/.anpp/ACmdSets.json")
