@@ -32,6 +32,8 @@ class CmdWindow:
         self.needFreshStatus = True
         self.queue = Queue()
         self.shell = Shell(self.queue)
+        self.activeScroll = False
+        self.activeScrollIndex = 0
 
         # keyboard code
         KEY_BOARD_ENTER = 10
@@ -69,8 +71,8 @@ class CmdWindow:
         curses.use_default_colors()
         curses.init_pair(1, curses.COLOR_WHITE, -1)
         curses.init_pair(2, curses.COLOR_GREEN, -1)
-        DEFAULT_COLOR = 1
-        FG_GREEN_COLOR = 2
+        self.DEFAULT_COLOR = 1
+        self.FG_GREEN_COLOR = 2
 
         # 获取当前行列信息
         self.maxRows = curses.LINES
@@ -139,6 +141,21 @@ class CmdWindow:
 
             self.log.debug("key %d" % (ch))
 
+            if self.activeScroll:
+                if ch == KEY_BOARD_UP or ch == ord('k'):
+                    self.activeScrollIndex -= 1
+                elif ch == KEY_BOARD_DOWN or ch == ord('j'):
+                    self.activeScrollIndex += 1
+                elif ch == ord('s'):
+                    if self.activeScroll:
+                        self.activeScroll = False
+                else:
+                    pass
+
+                self.needFreshInfo = True
+
+                continue
+
             if ch == curses.KEY_RESIZE:
                 self.mainScreen.clear()
                 self.maxRows, self.maxCols = self.mainScreen.getmaxyx()
@@ -177,15 +194,13 @@ class CmdWindow:
                     )
 
                 self.selectScreen.border(0)
-                self.infoScreen.border(0)
-                self.statusScreen.border(0)
 
                 self.drawList(self.selectScreen, list(self.getCurrentCmdSetsList()), topIndex, index)
 
                 self.mainScreen.refresh()
                 self.selectScreen.refresh()
-                self.infoScreen.refresh()
-                self.statusScreen.refresh()
+                self.needFreshInfo = True
+                self.needFreshStatus = True
 
                 inputString = ""
 
@@ -195,6 +210,11 @@ class CmdWindow:
             elif ch == KEY_BOARD_ESC or ch == ord('q'):
                 index = -1
                 break
+            elif ch == ord('s'):
+                if not self.activeScroll:
+                    self.activeScroll = True
+                    self.activeScrollIndex = 0
+                    self.needFreshInfo = True
             elif ch == ord('c'):
                 if self.shell != None:
                     self.shell.terminate()
@@ -316,7 +336,11 @@ class CmdWindow:
                     self.logBuffer.append(self.queue.get())
 
                 self.infoScreen.clear()
+                if self.activeScroll:
+                    self.infoScreen.attron(curses.color_pair(self.FG_GREEN_COLOR))
                 self.infoScreen.border(0)
+                if self.activeScroll:
+                    self.infoScreen.attroff(curses.color_pair(self.FG_GREEN_COLOR))
                 self.drawInfo(self.infoScreen)
                 self.infoScreen.refresh()
 
@@ -409,6 +433,13 @@ class CmdWindow:
     def drawInfo(self, window: curses.window):
         maxRows, maxCols = window.getmaxyx()
 
+        if self.activeScrollIndex > 0:
+            self.activeScrollIndex = 0
+        elif self.activeScrollIndex < (0 - (len(self.logBuffer) - (maxRows - 2))):
+            self.activeScrollIndex = (0 - (len(self.logBuffer) - (maxRows - 2)))
+        else:
+            pass
+
         for row in range(maxRows - 2):
             if len(self.logBuffer) == 0:
                 break
@@ -420,6 +451,7 @@ class CmdWindow:
                 window.addstr(row + 1, 1, self.logBuffer[row])
             else:
                 offset = len(self.logBuffer) - (maxRows - 2) + row
+                offset += self.activeScrollIndex
                 window.addstr(row + 1, 1, self.logBuffer[offset])
 
     def drawStatus(self, window: curses.window):
