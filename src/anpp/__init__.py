@@ -21,7 +21,7 @@ def acmdsets():
 
     if len(sys.argv) == 2:
         if sys.argv[1] == "new":
-            shutil.copyfile(DEFAULT_CONFIG_PATH, HOME_CONFIG_PATH)
+            shutil.copyfile(HOME_CONFIG_PATH, CURRENT_DIR_CONFIG_PATH)
         elif sys.argv[1] == "config":
             shutil.copyfile(CURRENT_DIR_CONFIG_PATH, HOME_CONFIG_PATH)
     else:

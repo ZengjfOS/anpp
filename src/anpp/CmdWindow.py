@@ -20,7 +20,8 @@ class CmdWindow:
 
         self.logBuffer = []
 
-        self.cmdSets            = config["cmdSets"]
+        # self.cmdSets            = config["cmdSets"]
+        self.cmdSets            = config
         self.currentCmdSets     = self.cmdSets
         self.currentFocusCmdSet = self.currentCmdSets[list(self.currentCmdSets.keys())[0]]
         self.cmdSetsIndent      = []
@@ -198,6 +199,8 @@ class CmdWindow:
                 if self.shell != None:
                     self.shell.terminate()
 
+                    self.logBuffer.append("terminate: " + self.shCmd)
+
                 continue
             elif ch == KEY_BOARD_UP or ch == ord('k'):
                 self.log.debug("key up")
@@ -269,13 +272,16 @@ class CmdWindow:
 
                 else:
                     key = list(self.currentCmdSets.keys())[index]
-                    self.cmdSetsIndent.append(key)
-                    self.currentCmdSets = self.currentCmdSets[key]
+                    if isinstance(self.currentCmdSets[key], str):
+                        self.logBuffer.append(key + ": " + self.currentCmdSets[key])
+                    else:
+                        self.cmdSetsIndent.append(key)
+                        self.currentCmdSets = self.currentCmdSets[key]
+
+                        topIndex = 0
+                        index = 0
 
                     listTarget = self.getCurrentCmdSetsList()
-
-                    topIndex = 0
-                    index = 0
 
                 self.selectScreen.clear()
                 self.selectScreen.border(0)
