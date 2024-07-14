@@ -39,4 +39,3 @@ clean:
 	rm -rf $(anpp_dir)
 	sed -i "/$(androiddir_file)/d" $(bashrc_dir)
 	sed -i "/ZengjfOS\/anpp/d" $(bashrc_dir)
-

@@ -8,16 +8,17 @@
 * [二、配置方法](#二配置方法)
   * [2.1 修改androiddir.bash.template](#21-修改androiddirbashtemplate)
   * [2.2 修改config.json](#22-修改configjson)
-* [三、install](#三install)
+* [三、安装anpp shell脚本](#三安装anpp-shell脚本)
   * [3.1 直接安装androiddir.bash.template修改](#31-直接安装androiddirbashtemplate修改)
-  * [3.2 安装config.json修改](#32-安装configjson修改)
+  * [3.2 安装config.json模版](#32-安装configjson模版)
 * [四、clean](#四clean)
-* [五、使用方法](#五使用方法)
+* [五、anpp使用方法](#五anpp使用方法)
   * [5.1 自动补全使用](#51-自动补全使用)
   * [5.2 项目源代码跳转](#52-项目源代码跳转)
   * [5.3 其他跳转命令](#53-其他跳转命令)
 * [六、自定义命令](#六自定义命令)
 * [七、自定义别名](#七自定义别名)
+* [八、自动扫描生成配置](#八自动扫描生成配置)
 
 # 一、安装及使用
 
@@ -27,7 +28,6 @@
   .
   ├── LICENSE
   ├── Makefile
-  ├── androiddir.bash
   ├── androiddir.bash.template
   ├── config.json
   ├── custom.sh
@@ -173,3 +173,11 @@ NO. | 命令名 | 说明
 # 七、自定义别名
 
 [config.json](config.json)中的`alias`字段用于自定义shell alias
+
+# 八、自动扫描生成配置
+
+* 目前只支持QCOM、MTK代码架构
+* [config.json](config.json)中增加`scan`字段
+  * `true`: 表是开启自动扫描，不使用config.json中的项目配置
+  * `false`: 表是关闭自动扫描，使用config.json中的项目配置
+

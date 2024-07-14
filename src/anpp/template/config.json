@@ -3,7 +3,11 @@
 	/**
 	 * defaultPath: 默认路径，用于存放所有项目的根目录，所有的目录跳转基于该目录
 	 */
-	"defaultPath": "~/zengjf",
+	"defaultPath": "~/zengjf/android",
+	/**
+	 * auto scan defaultPath project
+	 */
+	"scan": false,
 	/**
 	 * project支持的key，这里相当于是定义，后面projects数组中的每个project相当于赋值，
 	 * 定义了不一定要赋值，没赋值会被'.'(目录)替换
@@ -141,6 +145,10 @@
 		{
 			"cmd": "lk",
 			"shell": "bs2"
+		},
+		{
+			"cmd": "minicom",
+			"shell": "sudo minicom -s -C ./minicom_`date +\"%Y%m%d%H%M%S\"`.log"
 		}
 	]
 }

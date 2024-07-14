@@ -2,11 +2,24 @@
 
 import json
 import sys
+import subprocess
+import os
 
 if len(sys.argv) != 2:
 	out_file_path = "androiddir.bash"
 else:
 	out_file_path = sys.argv[1]
+
+def shell(cmd):
+	print("cmd: " + cmd)
+
+	result = subprocess.run(cmd, shell=True, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+	print("return code:", result.returncode)
+
+	if result.returncode == 0:
+		return result.stdout.strip()
+	else:
+		return 0
 
 # 1. How to parse json file with c-style comments?
 #   https://stackoverflow.com/questions/29959191/how-to-parse-json-file-with-c-style-comments
@@ -38,13 +51,116 @@ for key in config["project_keys"]:
 	globals()["%ss" % (key)] = []
 
 # get data
-defaultPath = config["defaultPath"]
-for project in config["projects"]:
-	for key in project_keys:
-		if key in project.keys():
-			globals()["%ss" % (key)].append(project[key])
-		else:
-			globals()["%ss" % (key)].append(".")
+if config["scan"]:
+	defaultPath = config["defaultPath"]
+	SoCDirs = [
+			'mssi/device/mediatek',
+			'qssi/device/qcom'
+		]
+	scanSubProject = []
+	for SoCDir in SoCDirs:
+		SoCType = "qcom"
+		if "qcom" in SoCDir:
+			SoCType = "qcom"
+		elif "mediatek" in SoCDir:
+			SoCType = "mediatek"
+
+		cmd = 'find ' + defaultPath + ' -maxdepth 5 -type d -path "*/' + SoCDir + '"'
+		result = shell(cmd)
+
+		subProjects = result.split("\n")
+		for sub in subProjects:
+			if sub.strip() != "":
+				projectHome = sub.replace("/" + SoCDir, "")
+				project = os.path.basename(projectHome)
+				print("scaned project:" + project)
+				projectInfo = {}
+
+				cmd = 'find ' + defaultPath + "/" + project + ' -maxdepth 2 -type d -path "*/vendor" | grep -v -E "qssi|mssi"'
+				result = shell(cmd)
+				vendorDir = os.path.dirname(result)
+
+				if len(vendorDir) > 0:
+					vendorDirName = vendorDir.replace(projectHome + "/", "")
+					if vendorDirName.strip() == "":
+						vendorDirName = "."
+
+					if SoCType == "qcom":
+						projectInfo["project"]          = project
+						projectInfo["kernel"]           = vendorDirName + "/kernel_platform/msm-kernel"
+
+						projectInfo["out"]              = vendorDirName + "/out/target/product"
+
+						# get product name
+						if os.path.exists(vendorDir + "/out/target/product"):
+							cmd = 'ls ' + vendorDir + "/out/target/product" + ' -1 | grep -v common'
+							result = shell(cmd)
+							projectInfo["product"]      = result
+						else:
+							projectInfo["product"]      = "unknow"
+
+						projectInfo["dts"]              = "arch/arm64/boot/dts/vendor/qcom"
+
+						cmd = 'find ' + defaultPath + "/" + project + ' -maxdepth 4 -type d -path "*/boot_images"'
+						result = shell(cmd)
+						projectInfo["bootloaderStage1"] = result.split(project + "/")[1]
+
+						projectInfo["bootloaderStage2"] = os.path.dirname(projectInfo["kernel"]) + "/bootable/bootloader/edk2"
+
+						cmd = 'find ' + defaultPath + "/" + project + ' -maxdepth 4 -type f -path "*/contents.xml"'
+						result = shell(cmd)
+						projectInfo["efuse"]            = os.path.dirname(result).split(project + "/")[1] + "/common/sectools"
+
+					if SoCType == "mediatek":
+						'''
+						{
+							"project": "M0-project",
+							"product": "M0",
+							"kernel": "kernel-4.9",
+							"dts": "arch/arm64/boot/dts/mediatek/",
+							"bootloaderStage1": "vendor/mediatek/proprietary/bootable/bootloader/preloader",
+							"bootloaderStage2": "vendor/mediatek/proprietary/bootable/bootloader/lk2",
+							"out": "out/target/product",
+							"efuse": "vendor/mediatek/proprietary/scripts/sign-image_v2"
+						},
+						'''
+
+						projectInfo["project"]          = project
+						# get kernel name
+						cmd = 'find ' + vendorDir + "/kernel" + ' -maxdepth 2 -type l -path "*/kernel-*"'
+						result = shell(cmd)
+						projectInfo["kernel"]           = vendorDirName + "/" + os.path.basename(result)
+
+						projectInfo["out"]              = vendorDirName + "/out/target/product"
+
+						# get product name
+						if os.path.exists(vendorDir + "/out/target/product"):
+							cmd = 'ls ' + vendorDir + "/out/target/product" + ' -1 | grep -v common'
+							result = shell(cmd)
+							projectInfo["product"]      = result
+						else:
+							projectInfo["product"]      = "unknow"
+
+						projectInfo["dts"]              = "arch/arm64/boot/dts/mediatek/"
+						projectInfo["bootloaderStage1"] = vendorDirName + "/" + "vendor/mediatek/proprietary/bootable/bootloader/preloader"
+						projectInfo["bootloaderStage2"] = vendorDirName + "/" + "vendor/mediatek/proprietary/bootable/bootloader/lk2"
+						projectInfo["efuse"]            = vendorDirName + "/" + "vendor/mediatek/proprietary/scripts/sign-image_v2"
+
+					print(projectInfo)
+
+					for key in project_keys:
+						if key in projectInfo.keys():
+							globals()["%ss" % (key)].append(projectInfo[key])
+						else:
+							globals()["%ss" % (key)].append(".")
+else:
+	defaultPath = config["defaultPath"]
+	for project in config["projects"]:
+		for key in project_keys:
+			if key in project.keys():
+				globals()["%ss" % (key)].append(project[key])
+			else:
+				globals()["%ss" % (key)].append(".")
 
 # show data
 print("defaultPath: " + defaultPath)
@@ -93,7 +209,7 @@ with open(out_file_path, 'w', encoding = 'utf-8') as f_out:
 				anpp_template_skip_line = True
 				f_out.write(line)
 
-				with open("custom.sh", 'r', encoding = 'utf-8') as f_custom:
+				with open("tools/custom.sh", 'r', encoding = 'utf-8') as f_custom:
 					custom_function = False
 					index = 1
 
