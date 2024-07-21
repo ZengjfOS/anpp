@@ -124,6 +124,15 @@ function project_product() {
         cd $defaultPath
     elif [ $1 == "workspace" ]; then
         cd $defaultPath
+    elif [ $1 == "source" ]; then
+        project_product_custom source
+        return
+    elif [ $1 == "vim" ]; then
+        project_product_custom vim
+        return
+    elif [ $1 == "tmux" ]; then
+        project_product_custom tmux
+        return
     else
 
         # jump to project

@@ -59,11 +59,14 @@ if config["scan"]:
 		]
 	scanSubProject = []
 	for SoCDir in SoCDirs:
-		SoCType = "qcom"
+		SoCType = ""
 		if "qcom" in SoCDir:
 			SoCType = "qcom"
 		elif "mediatek" in SoCDir:
 			SoCType = "mediatek"
+
+		if SoCDir == "":
+			continue
 
 		cmd = 'find ' + defaultPath + ' -maxdepth 5 -type d -path "*/' + SoCDir + '"'
 		result = shell(cmd)
@@ -85,15 +88,20 @@ if config["scan"]:
 					if vendorDirName.strip() == "":
 						vendorDirName = "."
 
+					cmd = 'find ' + defaultPath + "/" + project + ' -maxdepth 2 -type d -path "*/vendor" | grep -E "qssi|mssi"'
+					result = shell(cmd)
+					xssiDirName = os.path.basename(os.path.dirname(result))
+					projectInfo["xssi"]             = xssiDirName
+
 					if SoCType == "qcom":
 						projectInfo["project"]          = project
 						projectInfo["kernel"]           = vendorDirName + "/kernel_platform/msm-kernel"
-
+						projectInfo["vendor"]           = vendorDirName
 						projectInfo["out"]              = vendorDirName + "/out/target/product"
 
 						# get product name
 						if os.path.exists(vendorDir + "/out/target/product"):
-							cmd = 'ls ' + vendorDir + "/out/target/product" + ' -1 | grep -v common'
+							cmd = 'ls ' + vendorDir + "/out/target/product" + ' -1 | grep -v -E "common|configs"'
 							result = shell(cmd)
 							projectInfo["product"]      = result
 						else:
@@ -130,12 +138,12 @@ if config["scan"]:
 						cmd = 'find ' + vendorDir + "/kernel" + ' -maxdepth 2 -type l -path "*/kernel-*"'
 						result = shell(cmd)
 						projectInfo["kernel"]           = vendorDirName + "/" + os.path.basename(result)
-
+						projectInfo["vendor"]           = vendorDirName
 						projectInfo["out"]              = vendorDirName + "/out/target/product"
 
 						# get product name
 						if os.path.exists(vendorDir + "/out/target/product"):
-							cmd = 'ls ' + vendorDir + "/out/target/product" + ' -1 | grep -v common'
+							cmd = 'ls ' + vendorDir + "/out/target/product" + ' -1 | grep -v -E "common|configs"'
 							result = shell(cmd)
 							projectInfo["product"]      = result
 						else:

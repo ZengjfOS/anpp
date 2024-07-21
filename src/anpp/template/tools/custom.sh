@@ -16,7 +16,8 @@ function project_product_custom() {
     # echo "argc: $#"
     # echo "argv: $@"
 
-    if [ $1 == "test" ]; then
+    if [ $1 == "source" ]; then
+        echo "source ~/.anpp/.androiddir.sh"
         source ~/.anpp/.androiddir.sh
 
         return 0
@@ -41,7 +42,8 @@ EOF
         else
             # 1. Using sed to delete all lines between two matching patterns
             #   https://stackoverflow.com/questions/6287755/using-sed-to-delete-all-lines-between-two-matching-patterns
-            sed -i '/" ANPP CONFIG START/,/" ANPP CONFIG END/{{d;};}' ~/.vimrc
+            # sed -i '/" ANPP CONFIG START/,/" ANPP CONFIG END/{{d;};}' ~/.vimrc
+            echo "anpp vim configured"
         fi
         return 0
 
@@ -75,7 +77,8 @@ EOF
         else
             # 1. Using sed to delete all lines between two matching patterns
             #   https://stackoverflow.com/questions/6287755/using-sed-to-delete-all-lines-between-two-matching-patterns
-            sed -i '/# ANPP CONFIG START/,/# ANPP CONFIG END/{{d;};}' ~/.tmux.conf
+            # sed -i '/# ANPP CONFIG START/,/# ANPP CONFIG END/{{d;};}' ~/.tmux.conf
+            echo "anpp tmux configured"
         fi
         return 0
     else
