@@ -115,7 +115,7 @@ if config["scan"]:
 
 						projectInfo["bootloaderStage2"] = os.path.dirname(projectInfo["kernel"]) + "/bootable/bootloader/edk2"
 
-						cmd = 'find ' + defaultPath + "/" + project + ' -maxdepth 4 -type f -path "*/contents.xml"'
+						cmd = 'find ' + defaultPath + "/" + project + ' -maxdepth 4 -type f -path "*/contents.xml" | grep -E "\.[0-9]+\.[0-9]+"'
 						result = shell(cmd)
 						projectInfo["efuse"]            = os.path.dirname(result).split(project + "/")[1] + "/common/sectools"
 

@@ -30,9 +30,9 @@
   ├── Makefile
   ├── androiddir.bash.template
   ├── config.json
-  ├── custom.sh
   ├── generator.py
   └── tools
+      ├── custom.sh
       └── custom.py
   ```
 
