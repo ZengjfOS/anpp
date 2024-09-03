@@ -58,6 +58,9 @@ EOF
 set -g default-terminal "screen-256color"
 set -g history-limit 10000
 
+# Use vim keybindings in copy mode
+set -g mode-keys vi
+
 # Use Alt-arrow keys to switch panes
 unbind-key j
 bind-key j select-pane -D
